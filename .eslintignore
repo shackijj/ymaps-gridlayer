@@ -1,0 +1,8 @@
+/build/
+/umd/
+/examples/
+/node_modules/
+/public/
+/webpack.development.js
+/webpack.examples.js
+/webpack.module.js

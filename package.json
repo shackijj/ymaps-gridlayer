@@ -15,7 +15,7 @@
     "build-examples": "webpack --mode production --config webpack.examples.js",
     "deploy": "gh-pages -d examples",
     "lint": "eslint src/**/*.js",
-    "test": "mocha -r babel-core/register test/{**/*,*}.test.js"
+    "test": "mocha -r babel-core/register test/**/*.test.js --watch"
   },
   "husky": {
     "hooks": {

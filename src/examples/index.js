@@ -1,15 +1,15 @@
-import './../Boilerplate/Boilerplate';
+import './../Gridmap/Gridmap';
 
 ymaps.ready(() => {
     // eslint-disable-next-line no-unused-vars
     const myMap = new ymaps.Map('map', {
         center: [55.76, 37.64],
-        zoom: 10,
+        zoom: 1,
         controls: ['zoomControl', 'typeSelector', 'fullscreenControl']
     });
 
-    ymaps.modules.require(['Boilerplate', 'Layer'], (Boilerplate) => {
+    ymaps.modules.require(['Gridmap'], (Gridmap) => {
         const data = [[55.76, 37.64], [55.76, 37.65]];
-        const boilerplate = new Boilerplate(myMap, data);
+        const gridmap = new Gridmap(myMap, data);
     });
 });

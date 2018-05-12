@@ -1,4 +1,4 @@
-import {getPositionOfTheFirstHexagon} from './utils/hexagon';
+import {getHexagonsForTile} from './utils/hexagon';
 
 ymaps.modules.define('Gridmap', [
     'Layer',
@@ -6,11 +6,12 @@ ymaps.modules.define('Gridmap', [
 ], (provide, Layer, utilHd) => {
     const TILE_SIZE = 256;
     const dpr = utilHd.getPixelRatio();
-    const R = 20;
+
+    const R = 50;
     function sin(angle) {
         return Math.sin(Math.PI * angle / 180);
     }
-    
+
     function cos(angle) {
         return Math.cos(Math.PI * angle / 180);
     }
@@ -28,31 +29,30 @@ ymaps.modules.define('Gridmap', [
 
         _drawTile(tileNumber) {
             this._clear();
-            console.log('START', tileNumber[0], tileNumber[1]);
-            const [x, y] = getPositionOfTheFirstHexagon(tileNumber, TILE_SIZE, R);
-            this._context.translate(x, y);
-            const hexagon = [
-                [cos(0), sin(0)],
-                [cos(60), sin(60)],
-                [cos(120), sin(120)],
-                [cos(180), sin(180)],
-                [cos(240), sin(240)],
-                [cos(300), sin(300)],
-                [cos(0), sin(0)]
-            ];
-            this._context.beginPath();
-            hexagon.forEach(([x, y], idx) => {
-                if (idx === 0) {
-                    this._context.moveTo(x * R * dpr, y * R * dpr);
-                } else {
-                    this._context.lineTo(x * R * dpr, y * R * dpr);
-                }
+            const hexogons = getHexagonsForTile(tileNumber, TILE_SIZE, R);
+            hexogons.forEach(([x, y]) => {
+                const hexagon = [
+                    [cos(0), sin(0)],
+                    [cos(60), sin(60)],
+                    [cos(120), sin(120)],
+                    [cos(180), sin(180)],
+                    [cos(240), sin(240)],
+                    [cos(300), sin(300)],
+                    [cos(0), sin(0)]
+                ];
+                this._context.translate(x * dpr, y * dpr);
+                this._context.beginPath();
+                hexagon.forEach(([x, y], idx) => {
+                    if (idx === 0) {
+                        this._context.moveTo(x * R * dpr, y * R * dpr);
+                    } else {
+                        this._context.lineTo(x * R * dpr, y * R * dpr);
+                    }
+                });
+                this._context.stroke();
+                this._context.closePath();
+                this._context.setTransform(1, 0, 0, 1, 0, 0);
             });
-            console.log('END');
-            this._context.stroke();
-            this._context.closePath();
-            this._context.fillText(`(${tileNumber[0]}, ${tileNumber[1]})`, 100, 100);
-            this._context.setTransform(1, 0, 0, 1, 0, 0);
         }
 
         getDataURL(tileNumer, zoom) {

@@ -57,5 +57,8 @@
   },
   "bugs": {
     "url": "https://github.com/yandex-shri-fx-team/mapsapi-gridmap-layer/issues"
+  },
+  "dependencies": {
+    "rtree": "^1.4.2"
   }
 }

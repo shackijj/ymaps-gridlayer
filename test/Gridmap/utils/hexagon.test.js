@@ -1,60 +1,95 @@
-import {getPositionOfTheFirstHexagon} from '../../../src/Gridmap/utils/hexagon';
+import {getCentersOfHexagonsForTile, sin} from '../../../src/Gridmap/utils/hexagon';
 import {expect} from 'chai';
 
-describe('hexagonOffset', () => {
+describe('getCentersOfHexagonsForTile', () => {
     let R;
-    let output;
+    let actual;
     let tileSize;
     let tileNumber;
 
     beforeEach(() => {
-        output = getPositionOfTheFirstHexagon(tileNumber, tileSize, R);
+        actual = getCentersOfHexagonsForTile(tileNumber, tileSize, R);
     });
 
-    describe('given that the first hexagon is drawn in the origin 0, 0', () => {
+    // eslint-disable-next-line
+    describe('hexagons are generated with one extra column and one extra row in order to cover the whole area of a square tile', () => {
         function testsForBigRadiusAndTileSize(bigRadius, size, tiles) {
-            describe(`given that bigRadius equals ${bigRadius} and tileSize equals ${size}`, () => {
-                before(() => {
-                    R = bigRadius;
-                    tileSize = size;
-                });
-                tiles.forEach(({tile, expected}) => {
-                    describe(`given that tileNumber is [${tile[0]}, ${tile[1]}]`, () => {
-                        before(() => {
-                            tileNumber = tile;
-                        });
-                        it(`will return [${expected[0]}, ${expected[1]}]`, () => {
-                            expect(output).to.eql(expected);
-                        });
+            tiles.forEach(({tile, expected}) => {
+                describe(`given that tileNumber is [${tile[0]}, ${tile[1]}]`, () => {
+                    before(() => {
+                        R = bigRadius;
+                        tileNumber = tile;
+                        tileSize = size;
+                    });
+                    it(`will return ${JSON.stringify(expected)}`, () => {
+                        expect(actual).to.eql(expected);
                     });
                 });
             });
         }
 
-        testsForBigRadiusAndTileSize(1, 3, [
-            {
-                tile: [0, 0],
-                expected: [0, 0]
-            },
-            {
-                tile: [1, 0],
-                expected: [3, 0]
-            },
-            {
-                tile: [0, 1],
-                expected: [0, 3.4641016151377544]
-            }
-        ]);
+        describe('given that R is 2 and tileSize is 4', () => {
+            const R = 2;
+            const tileSize = 4;
+            const r = R * sin(60);
+            const BETWEEN_CENTERS_OF_COLS = 1.5 * R;
+            const BETWEEN_CENTERS_OF_ROWS = 2 * r;
 
-        testsForBigRadiusAndTileSize(2, 3, [
-            {
-                tile: [0, 0],
-                expected: [0, 0]
-            },
-            {
-                tile: [1, 0],
-                expected: [3, 1.7320508075688772]
-            }
-        ]);
+            testsForBigRadiusAndTileSize(R, tileSize, [
+                {
+                    tile: [0, 0],
+                    expected: [
+                        // row -1
+                        [BETWEEN_CENTERS_OF_COLS * -1, BETWEEN_CENTERS_OF_ROWS * -1 + r],
+                        [BETWEEN_CENTERS_OF_COLS * 0, BETWEEN_CENTERS_OF_ROWS * -1],
+                        [BETWEEN_CENTERS_OF_COLS, BETWEEN_CENTERS_OF_ROWS * -1 + r],
+                        [BETWEEN_CENTERS_OF_COLS * 2, BETWEEN_CENTERS_OF_ROWS * -1],
+                        // row 0
+                        [BETWEEN_CENTERS_OF_COLS * -1, 0 + r],
+                        [0, 0],
+                        [BETWEEN_CENTERS_OF_COLS, 0 + r],
+                        [BETWEEN_CENTERS_OF_COLS * 2, 0],
+                        // row 1
+                        [BETWEEN_CENTERS_OF_COLS * -1, BETWEEN_CENTERS_OF_ROWS + r],
+                        [BETWEEN_CENTERS_OF_COLS * 0, BETWEEN_CENTERS_OF_ROWS],
+                        [BETWEEN_CENTERS_OF_COLS, BETWEEN_CENTERS_OF_ROWS + r],
+                        [BETWEEN_CENTERS_OF_COLS * 2, BETWEEN_CENTERS_OF_ROWS],
+                        // row 2
+                        [BETWEEN_CENTERS_OF_COLS * -1, BETWEEN_CENTERS_OF_ROWS * 2 + r],
+                        [BETWEEN_CENTERS_OF_COLS * 0, BETWEEN_CENTERS_OF_ROWS * 2],
+                        [BETWEEN_CENTERS_OF_COLS, BETWEEN_CENTERS_OF_ROWS * 2 + r],
+                        [BETWEEN_CENTERS_OF_COLS * 2, BETWEEN_CENTERS_OF_ROWS * 2]
+                    ]
+                }
+            ]);
+
+            const firstHexOffset = [-2, 0];
+            const colMin1 = BETWEEN_CENTERS_OF_COLS * -1 - firstHexOffset[0];
+            const col0 = 0 - firstHexOffset[0];
+            const col1 = BETWEEN_CENTERS_OF_COLS - firstHexOffset[0];
+            testsForBigRadiusAndTileSize(R, tileSize, [
+                {
+                    tile: [1, 0],
+                    expected: [
+                        // row -1
+                        [colMin1, BETWEEN_CENTERS_OF_ROWS * -1 + r],
+                        [col0, BETWEEN_CENTERS_OF_ROWS * -1],
+                        [col1, BETWEEN_CENTERS_OF_ROWS * -1 + r],
+                        // row 0
+                        [colMin1, 0 + r],
+                        [col0, 0],
+                        [col1, 0 + r],
+                        // row 1
+                        [colMin1, BETWEEN_CENTERS_OF_ROWS + r],
+                        [col0, BETWEEN_CENTERS_OF_ROWS],
+                        [col1, BETWEEN_CENTERS_OF_ROWS + r],
+                        // row 2
+                        [colMin1, BETWEEN_CENTERS_OF_ROWS * 2 + r],
+                        [col0, BETWEEN_CENTERS_OF_ROWS * 2],
+                        [col1, BETWEEN_CENTERS_OF_ROWS * 2 + r]
+                    ]
+                }
+            ]);
+        });
     });
 });

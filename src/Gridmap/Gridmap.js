@@ -1,4 +1,4 @@
-import {getHexagonsForTile} from './utils/hexagon';
+import {getCentersOfHexagonsForTile} from './utils/hexagon';
 import RTree from 'rtree';
 
 ymaps.modules.define('Gridmap', [
@@ -50,7 +50,7 @@ ymaps.modules.define('Gridmap', [
         }
 
         _getShapesForTile(tileNumber, zoom, R) {
-            const hexogons = getHexagonsForTile(tileNumber, TILE_SIZE, R);
+            const hexogons = getCentersOfHexagonsForTile(tileNumber, TILE_SIZE, R);
             const offset = [
                 tileNumber[0] * TILE_SIZE,
                 tileNumber[1] * TILE_SIZE
@@ -70,7 +70,7 @@ ymaps.modules.define('Gridmap', [
                 return {
                     type: 'Feature',
                     properties: {
-                        hintContent: 'Содержимое текстовой подсказки.',
+                        hintContent: JSON.stringify([x, y]),
                         balloonContentBody: `Тут ${points.length} точек!`,
                         balloonContentHeader: 'Заголовок балуна.',
                         balloonContentFooter: 'Нижняя часть балуна.',
@@ -104,7 +104,8 @@ ymaps.modules.define('Gridmap', [
 
         _drawTile(tileNumber) {
             this._clear();
-            const hexogons = getHexagonsForTile(tileNumber, TILE_SIZE, R);
+            this._context.strokeRect(0, 0, TILE_SIZE * dpr, TILE_SIZE * dpr);
+            const hexogons = getCentersOfHexagonsForTile(tileNumber, TILE_SIZE, R);
             const offset = [
                 tileNumber[0] * TILE_SIZE,
                 tileNumber[1] * TILE_SIZE

@@ -10,7 +10,7 @@ ymaps.modules.define('Gridmap', [
     const TILE_SIZE = 256;
     const dpr = utilHd.getPixelRatio();
     const ZOOM = 10;
-    const R = 30;
+    const R = 50;
     const r = sin(60) * R;
 
     function sin(angle) {
@@ -36,6 +36,9 @@ ymaps.modules.define('Gridmap', [
             this._data.forEach((feature) => {
                 const [x, y] = this._projection.toGlobalPixels(
                     feature.geometry.coordinates, ZOOM);
+                feature.properties.RenderedGeometry = {
+                    coordinates: [x, y]
+                };
                 this._tree.insert(
                     {
                         x,
@@ -65,15 +68,22 @@ ymaps.modules.define('Gridmap', [
                 };
                 const points = this._tree.search(globalBbox);
 
-                const left = x - R;
-                const top = y - r;
+                const hexagon = [
+                    [cos(0), sin(0)],
+                    [cos(60), sin(60)],
+                    [cos(120), sin(120)],
+                    [cos(180), sin(180)],
+                    [cos(240), sin(240)],
+                    [cos(300), sin(300)],
+                    [cos(0), sin(0)]
+                ];
 
+                const hexagon2d = hexagon.map(([hX, hY]) => [x + (hX * R), y + (hY * R)]);
                 return {
                     type: 'Feature',
                     properties: {
-                        hintContent: JSON.stringify([x, y]),
                         balloonContentBody: `Тут ${points.length} точек!`,
-                        balloonContentHeader: 'Заголовок балуна.',
+                        balloonContentHeader: JSON.stringify([x, y]),
                         balloonContentFooter: 'Нижняя часть балуна.',
                         // Можно задавать свойство balloonContent вместо Body/Header/Footer
 
@@ -88,13 +98,7 @@ ymaps.modules.define('Gridmap', [
                                 type: 'Polygon',
                                 // Координаты многоугольника.
                                 coordinates: [
-                                    [
-                                        [left, top],
-                                        [left + 2 * R, top],
-                                        [left + 2 * R, top + 2 * r],
-                                        [left, top + 2 * r],
-                                        [left, top]
-                                    ]
+                                    hexagon2d
                                 ]
                             }
                         }
@@ -143,7 +147,6 @@ ymaps.modules.define('Gridmap', [
                 this._context.stroke();
                 this._context.closePath();
                 this._context.setTransform(1, 0, 0, 1, 0, 0);
-                this._context.strokeRect((x - R) * dpr, (y - r) * dpr, R * 2 * dpr, r * 2 * dpr);
                 this._context.fillStyle = 'black';
                 this._context.fillText('(' + x + ' ' + y + ')', x * dpr, y * dpr);
             });

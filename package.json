@@ -59,6 +59,7 @@
     "url": "https://github.com/yandex-shri-fx-team/mapsapi-gridmap-layer/issues"
   },
   "dependencies": {
+    "robust-point-in-polygon": "^1.0.3",
     "rtree": "^1.4.2"
   }
 }

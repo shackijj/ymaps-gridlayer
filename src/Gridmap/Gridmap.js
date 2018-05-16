@@ -10,7 +10,8 @@ ymaps.modules.define('Gridmap', [
     const TILE_SIZE = 256;
     const dpr = utilHd.getPixelRatio();
     const ZOOM = 10;
-    const R = 15;
+    const R = 30;
+    const r = sin(60) * R;
 
     function sin(angle) {
         return Math.sin(Math.PI * angle / 180);
@@ -58,14 +59,14 @@ ymaps.modules.define('Gridmap', [
             return hexogons.map(([x, y]) => {
                 const globalBbox = {
                     x: (x + offset[0]) - R,
-                    y: (y + offset[1]) - R,
-                    w: R,
-                    h: R
+                    y: (y + offset[1]) - r,
+                    w: 2 * R,
+                    h: 2 * r
                 };
                 const points = this._tree.search(globalBbox);
 
                 const left = x - R;
-                const top = y - R;
+                const top = y - r;
 
                 return {
                     type: 'Feature',
@@ -90,9 +91,9 @@ ymaps.modules.define('Gridmap', [
                                     [
                                         [left, top],
                                         [left + 2 * R, top],
-                                        [left + 2 * R, top + 2 * R],
-                                        [left, top + 2 * R],
-                                        [top, left]
+                                        [left + 2 * R, top + 2 * r],
+                                        [left, top + 2 * r],
+                                        [left, top]
                                     ]
                                 ]
                             }
@@ -113,9 +114,9 @@ ymaps.modules.define('Gridmap', [
             hexogons.forEach(([x, y]) => {
                 const globalBbox = {
                     x: (x + offset[0]) - R,
-                    y: (y + offset[1]) - R,
-                    w: R,
-                    h: R
+                    y: (y + offset[1]) - r,
+                    w: 2 * R,
+                    h: 2 * r
                 };
                 const points = this._tree.search(globalBbox);
                 const hexagon = [
@@ -137,11 +138,14 @@ ymaps.modules.define('Gridmap', [
                     }
                 });
                 const ratio = points.length / this._data.length;
-                this._context.fillStyle = `rgba(0,255,0,${ratio * 100})`;
+                this._context.fillStyle = `rgba(0,255,0,${ratio * 50})`;
                 this._context.fill();
                 this._context.stroke();
                 this._context.closePath();
                 this._context.setTransform(1, 0, 0, 1, 0, 0);
+                this._context.strokeRect((x - R) * dpr, (y - r) * dpr, R * 2 * dpr, r * 2 * dpr);
+                this._context.fillStyle = 'black';
+                this._context.fillText('(' + x + ' ' + y + ')', x * dpr, y * dpr);
             });
         }
 

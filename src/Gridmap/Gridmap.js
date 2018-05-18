@@ -104,25 +104,28 @@ ymaps.modules.define('Gridmap', [
         }
 
         _getHotspotsForTile(tileNumber, zoom, R) {
-            const hexogons = getCentersOfHexagonsForTile(tileNumber, TILE_SIZE, R);
-            const offset = this._getTileOffset(tileNumber, TILE_SIZE);
             const result = [];
+            const scale = Math.pow(2, ZOOM - this._map.getZoom());
+            const bigRadius = R / scale;
+            const smallRadius = r / scale;
+            const hexogons = getCentersOfHexagonsForTile(tileNumber, TILE_SIZE, bigRadius);
+            const offset = this._getTileOffset(tileNumber, TILE_SIZE);
             hexogons.forEach(([x, y]) => {
-                const points = this._getPointsForShape([x, y], offset, R, r);
+                const points = this._getPointsForShape([x, y], offset, bigRadius, smallRadius);
                 if (points.length > 0) {
-                    const hexagon = this._getShapeGlobal([x, y], [0, 0], R, 1);
+                    const hexagon = this._getShapeGlobal([x, y], [0, 0], bigRadius, 1);
                     result.push({
                         type: 'Feature',
                         properties: {
                             balloonContentBody: `Тут ${points.length} точек!`,
-                            balloonContentHeader: JSON.stringify([x, y]),
+                            balloonContentHeader: JSON.stringify(hexagon),
                             balloonContentFooter: 'Нижняя часть балуна.',
                             // Можно задавать свойство balloonContent вместо Body/Header/Footer
 
                             // Обязательное поле
                             HotspotMetaData: {
                                 // Идентификатор активной области.
-                                id: JSON.stringify(points),
+                                id: Date.now(),
                                 // Данные, на основе которых создается геометрия активной области.
                                 // Обязательное поле.
                                 RenderedGeometry: {
@@ -177,8 +180,6 @@ ymaps.modules.define('Gridmap', [
                 this._context.fill();
                 this._context.stroke();
                 this._context.closePath();
-                this._context.fillStyle = 'rgba(0,0,0)';
-                this._context.fillText(points.length, 0, 0);
                 this._context.setTransform(1, 0, 0, 1, 0, 0);
             });
         }

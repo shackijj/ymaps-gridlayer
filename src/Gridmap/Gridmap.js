@@ -23,6 +23,7 @@ ymaps.modules.define('Gridmap', [
     }
     class Canvas {
         constructor(size, {features}, map) {
+            this._map = map;
             this._projection = map.options.get('projection');
             this._data = features;
             this._canvas = document.createElement('canvas');
@@ -59,16 +60,20 @@ ymaps.modules.define('Gridmap', [
         _getPointsForShape(shapeCenter, globalOffset, R, r) {
             const [x, y] = shapeCenter;
 
+            // const scale = Math.pow(2, ZOOM - this._map.getZoom());
             const globalBbox = {
-                x: (x + globalOffset[0]) - R,
-                y: (y + globalOffset[1]) - r,
+                x: ((x + globalOffset[0]) - R),
+                y: ((y + globalOffset[1]) - r),
                 w: 2 * R,
                 h: 2 * r
             };
+
             const shape = this._getShapeGlobal(shapeCenter, globalOffset, R);
             const points = this._tree
                 .search(globalBbox)
-                .filter(({pixelCoords}) => classifyPoint(shape, pixelCoords) >= 0);
+                .filter(({pixelCoords}) => {
+                    return classifyPoint(shape, pixelCoords) >= 0;
+                });
 
             return points;
         }
@@ -137,7 +142,11 @@ ymaps.modules.define('Gridmap', [
             this._clear();
             this._context.strokeRect(0, 0, TILE_SIZE * dpr, TILE_SIZE * dpr);
 
-            const hexogons = getCentersOfHexagonsForTile(tileNumber, TILE_SIZE, R);
+            const scale = Math.pow(2, ZOOM - this._map.getZoom());
+            const bigRadius = R / scale;
+            // const smallRadius = r / scale;
+
+            const hexogons = getCentersOfHexagonsForTile(tileNumber, TILE_SIZE, bigRadius);
             const offset = this._getTileOffset(tileNumber, TILE_SIZE);
 
             hexogons.forEach(([x, y]) => {
@@ -155,9 +164,9 @@ ymaps.modules.define('Gridmap', [
                 this._context.beginPath();
                 hexagon.forEach(([x, y], idx) => {
                     if (idx === 0) {
-                        this._context.moveTo(x * R * dpr, y * R * dpr);
+                        this._context.moveTo(x * bigRadius * dpr, y * bigRadius * dpr);
                     } else {
-                        this._context.lineTo(x * R * dpr, y * R * dpr);
+                        this._context.lineTo(x * bigRadius * dpr, y * bigRadius * dpr);
                     }
                 });
                 const ratio = points.length / this._data.length;

@@ -4,9 +4,10 @@ export default class Hexagon {
     constructor(R) {
         this.R = R;
     }
-    getCentersForTile(tileNumber, tileSize) {
-        const r = sin(60) * this.R;
-        const BETWEEN_CENTERS_OF_COLS = 1.5 * this.R;
+    getCentersForTile(tileNumber, tileSize, scale) {
+        const R = this.R / scale;
+        const r = sin(60) * R;
+        const BETWEEN_CENTERS_OF_COLS = 1.5 * R;
         const BETWEEN_CENTERS_OF_ROWS = 2 * r;
         const COL_OFFSET = 1;
         const ROW_OFFSET = 1;
@@ -59,11 +60,12 @@ export default class Hexagon {
         ]);
     }
     getBBox([x, y], offset, scale) {
-        const r = sin(60) * this.R;
+        const R = this.R / scale;
+        const r = sin(60) * R;
         return {
-            x: ((x + offset[0]) - this.R) * scale,
+            x: ((x + offset[0]) - R) * scale,
             y: ((y + offset[1]) - r) * scale,
-            w: 2 * this.R * scale,
+            w: 2 * R * scale,
             h: 2 * r * scale
         };
     }

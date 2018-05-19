@@ -59,7 +59,7 @@ ymaps.modules.define('Gridmap', [
                 }
             }
 
-            this._debug = false;
+            this._debug = true;
 
             const tileUrlTemplate = (tileNumber, tileZoom) => this.getDataURL(tileNumber, tileZoom);
 
@@ -124,8 +124,7 @@ ymaps.modules.define('Gridmap', [
         _getHotspotsForTile(tileNumber) {
             const result = [];
             const scale = this._getScale();
-            const shapes = this._shape.getCentersForTile(
-                tileNumber, this._tileSize);
+            const shapes = this._shape.getCentersForTile(tileNumber, this._tileSize, scale);
             const offset = this._getTileOffset(tileNumber, this._tileSize);
             shapes.forEach(([x, y]) => {
                 const points = this._getPointsForShape([x, y], offset);
@@ -161,9 +160,7 @@ ymaps.modules.define('Gridmap', [
 
         _drawTile(tileNumber) {
             const scale = this._getScale();
-
-            const shapesCenters = this._shape.getCentersForTile(
-                tileNumber, this._tileSize, this._options.grid.bigRadius / scale);
+            const shapesCenters = this._shape.getCentersForTile(tileNumber, this._tileSize, scale);
             const offset = this._getTileOffset(tileNumber, this._tileSize);
 
             this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);

@@ -3,6 +3,10 @@ import Square from './utils/Square';
 import RTree from 'rtree';
 import classifyPoint from 'robust-point-in-polygon';
 import './HotspotObjectSourceBrowser';
+import defaultOnMouseEnter from './utils/defaultOnMouseEnter';
+import defaultOnMouseLeave from './utils/defaultOnMouseLeave';
+import defaultOnClick from './utils/defaultOnClick';
+import defaultBalloonClose from './utils/defaultBalloonClose';
 
 /**
  * @typedef {HexagonGridOptions}
@@ -75,8 +79,25 @@ ymaps.modules.define('Gridmap', [
             });
 
             const hotspotLayer = new ymaps.hotspot.Layer(objSource, {zIndex: 201, cursor: 'help'});
+
+            this._initInteractivity(hotspotLayer);
+
             this._options.map.layers.add(hotspotLayer);
             this._options.map.layers.add(layer);
+        }
+
+        _initInteractivity(hotspotLayer) {
+            this.polygonHover = null;
+            this.polygonActive = null;
+            this.onMouseEnter = defaultOnMouseEnter.bind(this);
+            this.onMouseLeave = defaultOnMouseLeave.bind(this);
+            this.onClick = defaultOnClick.bind(this);
+            this.onBalloonClose = defaultBalloonClose.bind(this);
+
+            hotspotLayer.events.add('mouseenter', this.onMouseEnter);
+            hotspotLayer.events.add('mouseleave', this.onMouseLeave);
+            hotspotLayer.events.add('click', this.onClick);
+            hotspotLayer.events.add('balloonclose', this.onBalloonClose);
         }
 
         _buildTree() {
@@ -130,17 +151,21 @@ ymaps.modules.define('Gridmap', [
                 const points = this._getPointsForShape([x, y], offset);
                 if (points.length > 0) {
                     const hexagon = this._shape.getPixelVertices([x, y], [0, 0], 1, scale);
+                    const objectGeometry = hexagon.map(([hX, hY]) => this._projection.fromGlobalPixels(
+                        [hX + offset[0], hY +
+                        offset[1]], this._options.map.getZoom()));
                     result.push({
                         type: 'Feature',
                         properties: {
                             balloonContentBody: `Тут ${points.length} точек!`,
                             balloonContentHeader: JSON.stringify(hexagon),
                             balloonContentFooter: 'Нижняя часть балуна.',
+                            objectGeometry: objectGeometry,
                             // Можно задавать свойство balloonContent вместо Body/Header/Footer
                             // Обязательное поле
                             HotspotMetaData: {
                                 // Идентификатор активной области.
-                                id: Date.now(),
+                                id: JSON.stringify(points),
                                 // Данные, на основе которых создается геометрия активной области.
                                 // Обязательное поле.
                                 RenderedGeometry: {

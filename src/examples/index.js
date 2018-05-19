@@ -11,6 +11,13 @@ ymaps.ready(() => {
 
     ymaps.modules.require(['Gridmap'], (Gridmap) => {
         // eslint-disable-next-line
-        const gridmap = new Gridmap(myMap, data);
+        const gridmap = new Gridmap({
+            map: myMap,
+            data,
+            grid: {
+                type: 'hexagon',
+                bigRadius: 15
+            }
+        });
     });
 });

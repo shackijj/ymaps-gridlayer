@@ -63,8 +63,6 @@ ymaps.modules.define('Gridmap', [
                 }
             }
 
-            this._debug = true;
-
             const tileUrlTemplate = (tileNumber, tileZoom) => this.getDataURL(tileNumber, tileZoom);
 
             const layer = new ymaps.Layer(tileUrlTemplate, {
@@ -125,14 +123,11 @@ ymaps.modules.define('Gridmap', [
         _getScale() {
             return Math.pow(2, this._treeZoom - this._options.map.getZoom());
         }
-        _getPointsForShape(shapeCenter, offset) {
-            const [x, y] = shapeCenter;
+        _getPointsForShape(shapeCenter, shapeVertices, offset) {
             const scale = this._getScale();
             const globalBbox = this._shape.getBBox(shapeCenter, offset, scale);
-            const shape = this._shape.getPixelVertices([x, y], offset, 1, scale);
-            return this._tree
-                .search(globalBbox)
-                .filter(({pixelCoords}) => classifyPoint(shape, pixelCoords) <= 0);
+            return this._tree.search(globalBbox)
+                .filter(({pixelCoords}) => classifyPoint(shapeVertices, pixelCoords) <= 0);
         }
 
         _getTileOffset(tileNumber, tileSize) {
@@ -148,9 +143,10 @@ ymaps.modules.define('Gridmap', [
             const shapes = this._shape.getCentersForTile(tileNumber, this._tileSize, scale);
             const offset = this._getTileOffset(tileNumber, this._tileSize);
             shapes.forEach(([x, y]) => {
-                const points = this._getPointsForShape([x, y], offset);
+                const globalShape = this._shape.getPixelVertices([x, y], offset, scale, scale);
+                const points = this._getPointsForShape([x, y], globalShape, offset);
                 if (points.length > 0) {
-                    const hexagon = this._shape.getPixelVertices([x, y], [0, 0], 1, scale);
+                    const hexagon = this._shape.getPixelVertices([x, y], [0, 0], scale);
                     const objectGeometry = hexagon.map(([hX, hY]) => this._projection.fromGlobalPixels(
                         [hX + offset[0], hY +
                         offset[1]], this._options.map.getZoom()));
@@ -191,20 +187,22 @@ ymaps.modules.define('Gridmap', [
             this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
 
             shapesCenters.forEach(([x, y]) => {
-                const points = this._getPointsForShape([x, y], offset);
-                const hexagon = this._shape.getPixelVertices([x, y], [0, 0], dpr, scale);
+                const globalShape = this._shape.getPixelVertices([x, y], offset, scale, scale);
+                const points = this._getPointsForShape([x, y], globalShape, offset);
+
                 this._context.beginPath();
-                hexagon.forEach(([x, y], idx) => {
+                const shape = this._shape.getPixelVertices([x, y], [0, 0], scale);
+                shape.forEach(([x, y], idx) => {
                     if (idx === 0) {
-                        this._context.moveTo(x, y);
+                        this._context.moveTo(x * dpr, y * dpr);
                     } else {
-                        this._context.lineTo(x, y);
+                        this._context.lineTo(x * dpr, y * dpr);
                     }
                 });
                 this._context.fillStyle = this._options.getShapeColor(points.length, this._data.length);
                 this._context.fill();
                 this._context.stroke();
-                if (this._debug) {
+                if (this._options.debug) {
                     this._context.fillStyle = 'black';
                     this._context.fillText(points.length, x, y);
                 }

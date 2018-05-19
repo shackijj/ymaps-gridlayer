@@ -1,18 +1,16 @@
 import {getCentersOfHexagonsForTile} from './utils/hexagon';
 import RTree from 'rtree';
 import classifyPoint from 'robust-point-in-polygon';
+import './HotspotObjectSourceBrowser';
 
 ymaps.modules.define('Gridmap', [
     'Layer',
     'util.hd',
     'util.defineClass',
-    'util.extend'
-], (provide, Layer, utilHd, defineClass, extend) => {
-    const TILE_SIZE = 256;
+    'util.extend',
+    'HotspotObjectSourceBrowser'
+], (provide, Layer, utilHd, defineClass, extend, HotspotObjectSourceBrowser) => {
     const dpr = utilHd.getPixelRatio();
-    const ZOOM = 10;
-    const R = 15;
-    const r = sin(60) * R;
 
     function sin(angle) {
         return Math.sin(Math.PI * angle / 180);
@@ -21,24 +19,44 @@ ymaps.modules.define('Gridmap', [
     function cos(angle) {
         return Math.cos(Math.PI * angle / 180);
     }
-    class Canvas {
-        constructor(size, {features}, map) {
-            this._map = map;
-            this._allFount = [];
-            this._projection = map.options.get('projection');
-            this._data = features;
+
+    class Gridmap {
+        constructor(options) {
+            const TILE_SIZE = 256;
+            this._options = options;
+            this._projection = this._options.map.options.get('projection');
+            this._data = options.data.features;
             this._canvas = document.createElement('canvas');
-            this._canvas.width = size[0] * dpr;
-            this._canvas.height = size[1] * dpr;
+            this._canvas.width = TILE_SIZE * dpr;
+            this._canvas.height = TILE_SIZE * dpr;
+            this._tileSize = TILE_SIZE;
             this._context = this._canvas.getContext('2d');
             this._buildTree();
+
+            const tileUrlTemplate = (tileNumber, tileZoom) => this.getDataURL(tileNumber, tileZoom);
+
+            const layer = new ymaps.Layer(tileUrlTemplate, {
+                /**
+                 * This is necessary because otherwise tiles are rendered
+                 * on top of the previously rendered tiles that create a weird effect.
+                 */
+                tileTransparent: true
+            });
+            const objSource = new HotspotObjectSourceBrowser(tileUrlTemplate, {
+                getHotspotsForTile: (tileNumber, zoom) => this._getHotspotsForTile(tileNumber, zoom)
+            });
+
+            const hotspotLayer = new ymaps.hotspot.Layer(objSource, {zIndex: 201, cursor: 'help'});
+            this._options.map.layers.add(hotspotLayer);
+            this._options.map.layers.add(layer);
         }
 
         _buildTree() {
             this._tree = new RTree();
+            this._treeZoom = this._options.map.getZoom();
             this._data.forEach((feature) => {
                 const [x, y] = this._projection.toGlobalPixels(
-                    feature.geometry.coordinates, ZOOM);
+                    feature.geometry.coordinates, this._treeZoom);
 
                 const point = {
                     feature,
@@ -54,14 +72,14 @@ ymaps.modules.define('Gridmap', [
                     point);
             });
         }
-        _clear() {
-            this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
-        }
 
+        _getScale() {
+            return Math.pow(2, this._treeZoom - this._options.map.getZoom());
+        }
         _getPointsForShape(shapeCenter, globalOffset, R, r) {
             const [x, y] = shapeCenter;
 
-            const scale = Math.pow(2, ZOOM - this._map.getZoom());
+            const scale = this._getScale();
             const globalBbox = {
                 x: ((x + globalOffset[0]) - R) * scale,
                 y: ((y + globalOffset[1]) - r) * scale,
@@ -70,13 +88,9 @@ ymaps.modules.define('Gridmap', [
             };
 
             const shape = this._getShapeGlobal(shapeCenter, globalOffset, R, scale);
-            const points = this._tree
+            return this._tree
                 .search(globalBbox)
-                .filter(({pixelCoords}) => {
-                    return classifyPoint(shape, pixelCoords) <= 0;
-                });
-
-            return points;
+                .filter(({pixelCoords}) => classifyPoint(shape, pixelCoords) <= 0);
         }
 
         _getShapeGlobal(shapeCenter, globalOffset, R, scale) {
@@ -104,13 +118,14 @@ ymaps.modules.define('Gridmap', [
             ];
         }
 
-        _getHotspotsForTile(tileNumber, zoom, R) {
+        _getHotspotsForTile(tileNumber) {
             const result = [];
-            const scale = Math.pow(2, ZOOM - this._map.getZoom());
+            const scale = this._getScale();
+            const R = this._options.grid.bigRadius;
             const bigRadius = R / scale;
-            const smallRadius = r / scale;
-            const hexogons = getCentersOfHexagonsForTile(tileNumber, TILE_SIZE, bigRadius);
-            const offset = this._getTileOffset(tileNumber, TILE_SIZE);
+            const smallRadius = sin(60) * R / scale;
+            const hexogons = getCentersOfHexagonsForTile(tileNumber, this._tileSize, bigRadius);
+            const offset = this._getTileOffset(tileNumber, this._tileSize);
             hexogons.forEach(([x, y]) => {
                 const points = this._getPointsForShape([x, y], offset, bigRadius, smallRadius);
                 if (points.length > 0) {
@@ -146,33 +161,24 @@ ymaps.modules.define('Gridmap', [
         }
 
         _drawTile(tileNumber) {
-            this._clear();
-
-            const scale = Math.pow(2, ZOOM - this._map.getZoom());
+            const scale = this._getScale();
+            const R = this._options.grid.bigRadius;
             const bigRadius = R / scale;
-            const smallRadius = r / scale;
+            const smallRadius = sin(60) * R / scale;
 
-            const hexogons = getCentersOfHexagonsForTile(tileNumber, TILE_SIZE, bigRadius);
-            const offset = this._getTileOffset(tileNumber, TILE_SIZE);
+            const hexogons = getCentersOfHexagonsForTile(tileNumber, this._tileSize, bigRadius);
+            const offset = this._getTileOffset(tileNumber, this._tileSize);
 
+            this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
             hexogons.forEach(([x, y]) => {
                 const points = this._getPointsForShape([x, y], offset, bigRadius, smallRadius);
-                const hexagon = [
-                    [cos(0), sin(0)],
-                    [cos(60), sin(60)],
-                    [cos(120), sin(120)],
-                    [cos(180), sin(180)],
-                    [cos(240), sin(240)],
-                    [cos(300), sin(300)],
-                    [cos(0), sin(0)]
-                ];
-                this._context.translate(x * dpr, y * dpr);
+                const hexagon = this._getShapeGlobal([x, y], [0, 0], bigRadius, dpr);
                 this._context.beginPath();
                 hexagon.forEach(([x, y], idx) => {
                     if (idx === 0) {
-                        this._context.moveTo(x * bigRadius * dpr, y * bigRadius * dpr);
+                        this._context.moveTo(x, y);
                     } else {
-                        this._context.lineTo(x * bigRadius * dpr, y * bigRadius * dpr);
+                        this._context.lineTo(x, y);
                     }
                 });
                 const ratio = points.length / this._data.length;
@@ -180,55 +186,12 @@ ymaps.modules.define('Gridmap', [
                 this._context.fill();
                 this._context.stroke();
                 this._context.closePath();
-                this._context.setTransform(1, 0, 0, 1, 0, 0);
             });
         }
 
         getDataURL(tileNumer, zoom) {
             this._drawTile(tileNumer, zoom);
             return this._canvas.toDataURL();
-        }
-    }
-
-    class Gridmap {
-        constructor(map, featureCollection) {
-            const canvas = new Canvas([256, 256], featureCollection, map);
-
-            function tileUrlTemplate(tileNumber, tileZoom) {
-                return canvas.getDataURL(tileNumber, tileZoom);
-            }
-
-            const HotspotLayerLocal = function (data, options) {
-                HotspotLayerLocal.superclass.constructor.call(this, '', extend({}, options));
-            };
-
-            defineClass(HotspotLayerLocal, ymaps.hotspot.ObjectSource, {
-                requestObjects: function (layer, tileNumber, zoom, callback) {
-                    const features = {
-                        data: {
-                            type: 'FeatureCollection',
-                            features: canvas._getHotspotsForTile(tileNumber, ZOOM, R)
-                        }
-                    };
-                    this.parseResponse(layer, features, callback, tileNumber, ZOOM);
-                }
-            });
-
-            const layer = new ymaps.Layer(tileUrlTemplate, {
-                /**
-                 * This is necessary because otherwise tiles are rendered
-                 * on top of the previously rendered tiles that create a weird effect.
-                 */
-                tileTransparent: true
-            });
-            const objSource = new HotspotLayerLocal(tileUrlTemplate);
-            const hotspotLayer = new ymaps.hotspot.Layer(objSource, {zIndex: 2000, cursor: 'help'});
-            map.layers.add(hotspotLayer);
-            map.layers.add(layer);
-        }
-
-        setMap(map) {
-            this._map = map;
         }
     }
 

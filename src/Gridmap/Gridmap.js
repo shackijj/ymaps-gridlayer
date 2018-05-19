@@ -172,7 +172,6 @@ ymaps.modules.define('Gridmap', [
 
         _drawTile(tileNumber) {
             this._clear();
-            this._context.strokeRect(0, 0, TILE_SIZE * dpr, TILE_SIZE * dpr);
 
             const scale = Math.pow(2, ZOOM - this._map.getZoom());
             const bigRadius = R / scale;

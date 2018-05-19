@@ -1,5 +1,5 @@
 import './../Gridmap/Gridmap';
-import data from './data-latlong.geojson';
+import data from './data/bikeparking.json';
 
 ymaps.ready(() => {
     // eslint-disable-next-line no-unused-vars

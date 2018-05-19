@@ -16,7 +16,7 @@ module.exports = {
                 }
             },
             {
-                test: /\.geojson$/,
+                test: /\.json$/,
                 use: {
                     loader: 'json-loader'
                 }

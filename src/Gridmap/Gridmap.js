@@ -176,8 +176,7 @@ ymaps.modules.define('Gridmap', [
                         this._context.lineTo(x, y);
                     }
                 });
-                const ratio = points.length / this._data.length;
-                this._context.fillStyle = `rgba(0,255,0,${ratio * 100})`;
+                this._context.fillStyle = this._options.getShapeColor(points.length, this._data.length);
                 this._context.fill();
                 this._context.stroke();
                 if (this._debug) {

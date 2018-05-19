@@ -17,6 +17,9 @@ ymaps.ready(() => {
             grid: {
                 type: 'hexagon',
                 bigRadius: 15
+            },
+            getShapeColor(pointsCount, totalCount) {
+                return `rgba(0,255,0,${pointsCount / totalCount * 100})`;
             }
         });
     });

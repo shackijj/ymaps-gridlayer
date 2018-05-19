@@ -7,6 +7,8 @@
 const defaultOnClick = function (e) {
     const activeShape = e.originalEvent.activeObject;
 
+    this._options.map.geoObjects.remove(this.polygonActive);
+
     this.polygonActive = new ymaps.Polygon([activeShape._properties.objectGeometry], {
         hintContent: 'Polygon'
     }, {

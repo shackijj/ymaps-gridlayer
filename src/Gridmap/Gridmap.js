@@ -1,4 +1,5 @@
 import Hexagon from './utils/Hexagon';
+import Square from './utils/Square';
 import RTree from 'rtree';
 import classifyPoint from 'robust-point-in-polygon';
 import './HotspotObjectSourceBrowser';
@@ -24,7 +25,21 @@ ymaps.modules.define('Gridmap', [
             this._tileSize = TILE_SIZE;
             this._context = this._canvas.getContext('2d');
             this._buildTree();
-            this._shape = new Hexagon(this._options.grid.bigRadius);
+
+            switch (options.grid.type) {
+                case 'hexagon': {
+                    this._shape = new Hexagon(this._options.grid.bigRadius);
+                    break;
+                }
+                case 'square': {
+                    this._shape = new Square(this._options.grid.sideLength);
+                    break;
+                }
+                default: {
+                    throw new Error('Unknowk grid type');
+                }
+            }
+
             this._debug = false;
 
             const tileUrlTemplate = (tileNumber, tileZoom) => this.getDataURL(tileNumber, tileZoom);
@@ -90,10 +105,10 @@ ymaps.modules.define('Gridmap', [
         _getHotspotsForTile(tileNumber) {
             const result = [];
             const scale = this._getScale();
-            const hexogons = this._shape.getCentersForTile(
+            const shapes = this._shape.getCentersForTile(
                 tileNumber, this._tileSize);
             const offset = this._getTileOffset(tileNumber, this._tileSize);
-            hexogons.forEach(([x, y]) => {
+            shapes.forEach(([x, y]) => {
                 const points = this._getPointsForShape([x, y], offset);
                 if (points.length > 0) {
                     const hexagon = this._shape.getPixelVertices([x, y], [0, 0], 1, scale);

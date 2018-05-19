@@ -35,10 +35,26 @@ ymaps.modules.define('Gridmap', [
 
         _buildTree() {
             this._tree = new RTree();
+            let minX;
+            let maxX;
+            let minY;
+            let maxY;
             this._data.forEach((feature) => {
                 const [x, y] = this._projection.toGlobalPixels(
                     feature.geometry.coordinates, ZOOM);
 
+                if (x < minX || minX === undefined) {
+                    minX = x;
+                }
+                if (x > maxX || maxX === undefined) {
+                    maxX = x;
+                }
+                if (y < minY || minY === undefined) {
+                    minY = y;
+                }
+                if (y > maxY || maxY === undefined) {
+                    maxY = y;
+                }
                 const point = {
                     feature,
                     pixelCoords: [x, y]
@@ -52,6 +68,16 @@ ymaps.modules.define('Gridmap', [
                     },
                     point);
             });
+            /*
+            const query = {
+                x: minX,
+                y: minY,
+                w: maxX - minX,
+                h: maxY - minY
+            };
+            const all = this._tree.search(query);
+            console.log(minX, maxX, minY, maxY);
+            console.log(this._data.length, all.length, query); */
         }
         _clear() {
             this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);

@@ -42,8 +42,8 @@ export default class Hexagon {
         }
         return result;
     }
-    getPixelVertices([x, y], offset, scale, zoomScale) {
-        const R = this.R / zoomScale;
+    getPixelVertices([x, y], offset, scale, ratio = 1) {
+        const R = this.R / scale;
         const hexagon = [
             [cos(0), sin(0)],
             [cos(60), sin(60)],
@@ -55,8 +55,8 @@ export default class Hexagon {
         ];
 
         return hexagon.map(([hX, hY]) => [
-            (x + offset[0] + (hX * R)) * scale,
-            (y + offset[1] + (hY * R)) * scale
+            (x + offset[0] + (hX * R)) * ratio,
+            (y + offset[1] + (hY * R)) * ratio
         ]);
     }
     getBBox([x, y], offset, scale) {

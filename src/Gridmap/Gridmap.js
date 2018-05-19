@@ -4,6 +4,25 @@ import RTree from 'rtree';
 import classifyPoint from 'robust-point-in-polygon';
 import './HotspotObjectSourceBrowser';
 
+/**
+ * @typedef {HexagonGridOptions}
+ * @property {number} bigRadius
+ * @property {string} type
+ */
+
+/**
+ * @typedef {SquareGridOptions}
+ * @property {number} sideLength
+ * @property {string} type
+ */
+
+/**
+ * @typedef {GridmapOptions}
+ * @property {IMap} map
+ * @property {IGeoJSON} data
+ * @property {SquareGridOptions|HexagonGridOptions} grid
+ */
+
 ymaps.modules.define('Gridmap', [
     'Layer',
     'util.hd',

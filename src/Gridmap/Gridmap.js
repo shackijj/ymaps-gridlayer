@@ -152,8 +152,8 @@ ymaps.modules.define('Gridmap', [
                 if (points.length > 0) {
                     const hexagon = this._shape.getPixelVertices([x, y], [0, 0], 1, scale);
                     const objectGeometry = hexagon.map(([hX, hY]) => this._projection.fromGlobalPixels(
-                        [parseFloat(hX) + parseFloat(offset[0]), parseFloat(hY) +
-                        parseFloat(offset[1])], this._options.map.getZoom()));
+                        [hX + offset[0], hY +
+                        offset[1]], this._options.map.getZoom()));
                     result.push({
                         type: 'Feature',
                         properties: {

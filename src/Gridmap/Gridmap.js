@@ -1,4 +1,4 @@
-import {getCentersOfHexagonsForTile} from './utils/hexagon';
+import Hexagon from './utils/Hexagon';
 import RTree from 'rtree';
 import classifyPoint from 'robust-point-in-polygon';
 import './HotspotObjectSourceBrowser';
@@ -12,14 +12,6 @@ ymaps.modules.define('Gridmap', [
 ], (provide, Layer, utilHd, defineClass, extend, HotspotObjectSourceBrowser) => {
     const dpr = utilHd.getPixelRatio();
 
-    function sin(angle) {
-        return Math.sin(Math.PI * angle / 180);
-    }
-
-    function cos(angle) {
-        return Math.cos(Math.PI * angle / 180);
-    }
-
     class Gridmap {
         constructor(options) {
             const TILE_SIZE = 256;
@@ -32,6 +24,8 @@ ymaps.modules.define('Gridmap', [
             this._tileSize = TILE_SIZE;
             this._context = this._canvas.getContext('2d');
             this._buildTree();
+            this._shape = new Hexagon(this._options.grid.bigRadius);
+            this._debug = false;
 
             const tileUrlTemplate = (tileNumber, tileZoom) => this.getDataURL(tileNumber, tileZoom);
 
@@ -79,39 +73,11 @@ ymaps.modules.define('Gridmap', [
         _getPointsForShape(shapeCenter, offset) {
             const [x, y] = shapeCenter;
             const scale = this._getScale();
-            const R = this._options.grid.bigRadius / scale;
-            const r = sin(60) * this._options.grid.bigRadius / scale;
-            const globalBbox = {
-                x: ((x + offset[0]) - R) * scale,
-                y: ((y + offset[1]) - r) * scale,
-                w: 2 * R * scale,
-                h: 2 * r * scale
-            };
-
-            const shape = this._getShapePixelVertices(shapeCenter, offset, scale);
+            const globalBbox = this._shape.getBBox(shapeCenter, offset, scale);
+            const shape = this._shape.getPixelVertices([x, y], offset, 1, scale);
             return this._tree
                 .search(globalBbox)
                 .filter(({pixelCoords}) => classifyPoint(shape, pixelCoords) <= 0);
-        }
-
-        _getShapePixelVertices(shapeCenter, offset, scale) {
-            const [x, y] = shapeCenter;
-            const zoomScale = this._getScale();
-            const R = this._options.grid.bigRadius / zoomScale;
-            const hexagon = [
-                [cos(0), sin(0)],
-                [cos(60), sin(60)],
-                [cos(120), sin(120)],
-                [cos(180), sin(180)],
-                [cos(240), sin(240)],
-                [cos(300), sin(300)],
-                [cos(0), sin(0)]
-            ];
-
-            return hexagon.map(([hX, hY]) => [
-                (x + offset[0] + (hX * R)) * scale,
-                (y + offset[1] + (hY * R)) * scale
-            ]);
         }
 
         _getTileOffset(tileNumber, tileSize) {
@@ -124,14 +90,13 @@ ymaps.modules.define('Gridmap', [
         _getHotspotsForTile(tileNumber) {
             const result = [];
             const scale = this._getScale();
-            const R = this._options.grid.bigRadius;
-            const bigRadius = R / scale;
-            const hexogons = getCentersOfHexagonsForTile(tileNumber, this._tileSize, bigRadius);
+            const hexogons = this._shape.getCentersForTile(
+                tileNumber, this._tileSize);
             const offset = this._getTileOffset(tileNumber, this._tileSize);
             hexogons.forEach(([x, y]) => {
                 const points = this._getPointsForShape([x, y], offset);
                 if (points.length > 0) {
-                    const hexagon = this._getShapePixelVertices([x, y], [0, 0], 1);
+                    const hexagon = this._shape.getPixelVertices([x, y], [0, 0], 1, scale);
                     result.push({
                         type: 'Feature',
                         properties: {
@@ -163,7 +128,7 @@ ymaps.modules.define('Gridmap', [
         _drawTile(tileNumber) {
             const scale = this._getScale();
 
-            const shapesCenters = getCentersOfHexagonsForTile(
+            const shapesCenters = this._shape.getCentersForTile(
                 tileNumber, this._tileSize, this._options.grid.bigRadius / scale);
             const offset = this._getTileOffset(tileNumber, this._tileSize);
 
@@ -171,7 +136,7 @@ ymaps.modules.define('Gridmap', [
 
             shapesCenters.forEach(([x, y]) => {
                 const points = this._getPointsForShape([x, y], offset);
-                const hexagon = this._getShapePixelVertices([x, y], [0, 0], dpr);
+                const hexagon = this._shape.getPixelVertices([x, y], [0, 0], dpr, scale);
                 this._context.beginPath();
                 hexagon.forEach(([x, y], idx) => {
                     if (idx === 0) {
@@ -184,6 +149,10 @@ ymaps.modules.define('Gridmap', [
                 this._context.fillStyle = `rgba(0,255,0,${ratio * 100})`;
                 this._context.fill();
                 this._context.stroke();
+                if (this._debug) {
+                    this._context.fillStyle = 'black';
+                    this._context.fillText(points.length, x, y);
+                }
                 this._context.closePath();
             });
         }

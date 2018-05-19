@@ -24,6 +24,7 @@ ymaps.modules.define('Gridmap', [
     class Canvas {
         constructor(size, {features}, map) {
             this._map = map;
+            this._allFount = [];
             this._projection = map.options.get('projection');
             this._data = features;
             this._canvas = document.createElement('canvas');
@@ -35,26 +36,10 @@ ymaps.modules.define('Gridmap', [
 
         _buildTree() {
             this._tree = new RTree();
-            let minX;
-            let maxX;
-            let minY;
-            let maxY;
             this._data.forEach((feature) => {
                 const [x, y] = this._projection.toGlobalPixels(
                     feature.geometry.coordinates, ZOOM);
 
-                if (x < minX || minX === undefined) {
-                    minX = x;
-                }
-                if (x > maxX || maxX === undefined) {
-                    maxX = x;
-                }
-                if (y < minY || minY === undefined) {
-                    minY = y;
-                }
-                if (y > maxY || maxY === undefined) {
-                    maxY = y;
-                }
                 const point = {
                     feature,
                     pixelCoords: [x, y]
@@ -68,16 +53,6 @@ ymaps.modules.define('Gridmap', [
                     },
                     point);
             });
-            /*
-            const query = {
-                x: minX,
-                y: minY,
-                w: maxX - minX,
-                h: maxY - minY
-            };
-            const all = this._tree.search(query);
-            console.log(minX, maxX, minY, maxY);
-            console.log(this._data.length, all.length, query); */
         }
         _clear() {
             this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
@@ -98,7 +73,7 @@ ymaps.modules.define('Gridmap', [
             const points = this._tree
                 .search(globalBbox)
                 .filter(({pixelCoords}) => {
-                    return classifyPoint(shape, pixelCoords) >= 0;
+                    return classifyPoint(shape, pixelCoords) <= 0;
                 });
 
             return points;

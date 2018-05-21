@@ -3,9 +3,9 @@ export default class Square {
         this.side = side;
     }
 
-    getCentersForTile(tileNumber, tileSize) {
-        const BETWEEN_CENTERS_OF_COLS = this.side;
-        const BETWEEN_CENTERS_OF_ROWS = this.side;
+    getCentersForTile(tileNumber, tileSize, scale) {
+        const BETWEEN_CENTERS_OF_COLS = this.side / scale;
+        const BETWEEN_CENTERS_OF_ROWS = this.side / scale;
         const COL_OFFSET = 1;
         const ROW_OFFSET = 1;
         const offset = [
@@ -40,12 +40,14 @@ export default class Square {
         const side = this.side / zoomScale;
         const top = x - side / 2;
         const left = y - side / 2;
-        return [
+        const square = [
             [top, left],
             [top, left + side],
             [top + side, left + side],
             [top + side, left]
         ];
+
+        return square.map(([x, y]) => [x * scale, y * scale]);
     }
 
     getBBox([x, y], offset, scale) {

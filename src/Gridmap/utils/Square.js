@@ -36,7 +36,7 @@ export default class Square {
         return result;
     }
 
-    getPixelVertices([x, y], offset, scale, zoomScale) {
+    getPixelVertices([x, y], offset, zoomScale, ratio = 1) {
         const side = this.side / zoomScale;
         const top = x - side / 2;
         const left = y - side / 2;
@@ -47,7 +47,7 @@ export default class Square {
             [top + side, left]
         ];
 
-        return square.map(([x, y]) => [x * scale, y * scale]);
+        return square.map(([x, y]) => [(x + offset[0]) * ratio, (y + offset[1]) * ratio]);
     }
 
     getBBox([x, y], offset, scale) {
@@ -55,10 +55,10 @@ export default class Square {
         const top = x - side / 2;
         const left = y - side / 2;
         return {
-            x: top,
-            y: left,
-            w: side,
-            h: side
+            x: (top + offset[0]) * scale,
+            y: (left + offset[1]) * scale,
+            w: side * scale,
+            h: side * scale
         };
     }
 }

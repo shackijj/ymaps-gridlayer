@@ -42,7 +42,7 @@ export default class Hexagon {
         }
         return result;
     }
-    getPixelVertices([x, y], offset, scale, ratio = 1) {
+    getPixelVerticesForTile([x, y], scale) {
         const R = this.R / scale;
         const hexagon = [
             [cos(0), sin(0)],
@@ -55,10 +55,11 @@ export default class Hexagon {
         ];
 
         return hexagon.map(([hX, hY]) => [
-            (x + offset[0] + (hX * R)) * ratio,
-            (y + offset[1] + (hY * R)) * ratio
+            (x + (hX * R)),
+            (y + (hY * R))
         ]);
     }
+
     getBBox([x, y], offset, scale) {
         const R = this.R / scale;
         const r = sin(60) * R;

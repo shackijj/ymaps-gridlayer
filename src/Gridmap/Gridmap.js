@@ -7,6 +7,8 @@ import defaultOnMouseEnter from './utils/defaultOnMouseEnter';
 import defaultOnMouseLeave from './utils/defaultOnMouseLeave';
 import defaultOnClick from './utils/defaultOnClick';
 import defaultBalloonClose from './utils/defaultBalloonClose';
+//import Colorize from 'ymaps-polygonmap/src/utils/colorize';
+import Colorize from './utils/colorize';
 
 /**
  * @typedef {HexagonGridOptions}
@@ -49,6 +51,8 @@ ymaps.modules.define('Gridmap', [
             this._context = this._canvas.getContext('2d');
             this._buildTree();
 
+            this._maxPointsCount = 0;
+
             switch (options.grid.type) {
                 case 'hexagon': {
                     this._shape = new Hexagon(this._options.grid.bigRadius);
@@ -62,6 +66,29 @@ ymaps.modules.define('Gridmap', [
                     throw new Error('Unknowk grid type');
                 }
             }
+
+            const tileUrlTemplate1 = (tileNumber, tileZoom) => this.getDataURL1(tileNumber, tileZoom);
+            const layer1 = new ymaps.Layer(tileUrlTemplate1, {
+                /**
+                 * This is necessary because otherwise tiles are rendered
+                 * on top of the previously rendered tiles that create a weird effect.
+                 */
+                tileTransparent: true
+            });
+            /*const objSource1 = new HotspotObjectSourceBrowser(tileUrlTemplate1, {
+                getHotspotsForTile: (tileNumber, zoom) => this._getHotspotsForTile(tileNumber, zoom)
+            });*/
+            //const hotspotLayer1 = new ymaps.hotspot.Layer(objSource1, {zIndex: 201, cursor: 'help'});
+            //this._initInteractivity(hotspotLayer1);
+
+            //this._options.map.layers.add(hotspotLayer1);
+            this._options.map.layers.add(layer1);
+
+            this._colorize = new Colorize(this._maxPointsCount, {
+                colorScheme: 'cdom',
+                colorRanges: 10,
+                colorOpacity: 0.4
+            });
 
             const tileUrlTemplate = (tileNumber, tileZoom) => this.getDataURL(tileNumber, tileZoom);
 
@@ -205,9 +232,18 @@ ymaps.modules.define('Gridmap', [
                         this._context.lineTo(x * dpr, y * dpr);
                     }
                 });
-                this._context.fillStyle = this._options.getShapeColor(points.length, this._data.length);
+
+                if (this._options.colorEmptyPolygon && points.length === 0) {
+                    this._context.fillStyle = this._options.colorEmptyPolygon;
+                } else {
+                    this._context.fillStyle = this._colorize.getColor(points.length);
+                }
+
                 this._context.fill();
+                this._context.strokeStyle = this._options.strokeColor;
+                this._context.lineWidth = this._options.strokeWidth;
                 this._context.stroke();
+
                 if (this._options.debug) {
                     this._context.fillStyle = 'black';
                     this._context.fillText(points.length, x, y);
@@ -219,6 +255,21 @@ ymaps.modules.define('Gridmap', [
         getDataURL(tileNumer, zoom) {
             this._drawTile(tileNumer, zoom);
             return this._canvas.toDataURL();
+        }
+
+        getDataURL1(tileNumber) {
+            const scale = this._getScale();
+            const shapesCenters = this._shape.getCentersForTile(tileNumber, this._tileSize, scale);
+            const offset = this._getTileOffset(tileNumber, this._tileSize);
+
+            shapesCenters.forEach(([x, y]) => {
+                const shape = this._shape.getPixelVerticesForTile([x, y], scale);
+                const points = this._getPointsForShape([x, y], shape, offset);
+                const pointsCount = points.length;
+                if (pointsCount > this._maxPointsCount) {
+                    this._maxPointsCount = pointsCount;
+                }
+            });
         }
     }
 

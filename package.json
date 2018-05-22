@@ -60,6 +60,7 @@
   },
   "dependencies": {
     "robust-point-in-polygon": "^1.0.3",
-    "rtree": "^1.4.2"
+    "rtree": "^1.4.2",
+    "ymaps-polygonmap": "git+https://github.com/yandex-shri-fx-team/ymaps-polygonmap.git"
   }
 }

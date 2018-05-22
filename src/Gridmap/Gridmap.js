@@ -3,10 +3,6 @@ import Square from './utils/Square';
 import RTree from 'rtree';
 import classifyPoint from 'robust-point-in-polygon';
 import './HotspotObjectSourceBrowser';
-import defaultOnMouseEnter from './utils/defaultOnMouseEnter';
-import defaultOnMouseLeave from './utils/defaultOnMouseLeave';
-import defaultOnClick from './utils/defaultOnClick';
-import defaultBalloonClose from './utils/defaultBalloonClose';
 
 /**
  * @typedef {HexagonGridOptions}
@@ -65,37 +61,23 @@ ymaps.modules.define('Gridmap', [
 
             const tileUrlTemplate = (tileNumber, tileZoom) => this.getDataURL(tileNumber, tileZoom);
 
-            const layer = new ymaps.Layer(tileUrlTemplate, {
+            this.layer = new ymaps.Layer(tileUrlTemplate, {
                 /**
                  * This is necessary because otherwise tiles are rendered
                  * on top of the previously rendered tiles that create a weird effect.
                  */
                 tileTransparent: true
             });
-            const objSource = new HotspotObjectSourceBrowser(tileUrlTemplate, {
+            this.objSource = new HotspotObjectSourceBrowser(tileUrlTemplate, {
                 getHotspotsForTile: (tileNumber, zoom) => this._getHotspotsForTile(tileNumber, zoom)
             });
 
-            const hotspotLayer = new ymaps.hotspot.Layer(objSource, {zIndex: 201, cursor: 'help'});
+            this.hotspotLayer = new ymaps.hotspot.Layer(this.objSource, {zIndex: 201, cursor: 'help'});
 
-            this._initInteractivity(hotspotLayer);
+            this._options.map.layers.add(this.hotspotLayer);
+            this._options.map.layers.add(this.layer);
 
-            this._options.map.layers.add(hotspotLayer);
-            this._options.map.layers.add(layer);
-        }
-
-        _initInteractivity(hotspotLayer) {
-            this.polygonHover = null;
-            this.polygonActive = null;
-            this.onMouseEnter = defaultOnMouseEnter.bind(this);
-            this.onMouseLeave = defaultOnMouseLeave.bind(this);
-            this.onClick = defaultOnClick.bind(this);
-            this.onBalloonClose = defaultBalloonClose.bind(this);
-
-            hotspotLayer.events.add('mouseenter', this.onMouseEnter);
-            hotspotLayer.events.add('mouseleave', this.onMouseLeave);
-            hotspotLayer.events.add('click', this.onClick);
-            hotspotLayer.events.add('balloonclose', this.onBalloonClose);
+            this.events = this.hotspotLayer.events;
         }
 
         _buildTree() {

@@ -207,6 +207,8 @@ ymaps.modules.define('Gridmap', [
                 });
                 this._context.fillStyle = this._options.getShapeColor(points.length, this._data.length);
                 this._context.fill();
+                this._context.strokeStyle = this._options.strokeColor || 'black';
+                this._context.lineWidth = this._options.strokeWidth || 1;
                 this._context.stroke();
                 if (this._options.debug) {
                     this._context.fillStyle = 'black';

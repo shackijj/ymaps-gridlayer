@@ -14,6 +14,8 @@ ymaps.ready(() => {
         const gridmap = new Gridmap({
             map: map1,
             data,
+            strokeWidth: 3,
+            strokeColor: 'rgba(0,0,0,0.3)',
             grid: {
                 type: 'hexagon',
                 bigRadius: 15

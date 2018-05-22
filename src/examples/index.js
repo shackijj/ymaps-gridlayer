@@ -20,7 +20,14 @@ ymaps.ready(() => {
             },
             getShapeColor(pointsCount, totalCount) {
                 return `rgba(0,255,0,${pointsCount / totalCount * 100})`;
-            }
+            },
+            debug: true,
+            colorScheme: 'summer',
+            colorRanges: 10,
+            colorOpacity: 0.7,
+            colorEmptyPolygon: 'rgba(255,255,255, 0)',
+            strokeColor: '#fff',
+            strokeWidth: 1
         });
     });
 

@@ -3,9 +3,9 @@ export default class Square {
         this.side = side;
     }
 
-    getCentersForTile(tileNumber, tileSize) {
-        const BETWEEN_CENTERS_OF_COLS = this.side;
-        const BETWEEN_CENTERS_OF_ROWS = this.side;
+    getCentersForTile(tileNumber, tileSize, scale) {
+        const BETWEEN_CENTERS_OF_COLS = this.side / scale;
+        const BETWEEN_CENTERS_OF_ROWS = this.side / scale;
         const COL_OFFSET = 1;
         const ROW_OFFSET = 1;
         const offset = [
@@ -36,8 +36,8 @@ export default class Square {
         return result;
     }
 
-    getPixelVertices([x, y], offset, scale, zoomScale) {
-        const side = this.side / zoomScale;
+    getPixelVerticesForTile([x, y], scale) {
+        const side = this.side / scale;
         const top = x - side / 2;
         const left = y - side / 2;
         return [
@@ -53,10 +53,10 @@ export default class Square {
         const top = x - side / 2;
         const left = y - side / 2;
         return {
-            x: top,
-            y: left,
-            w: side,
-            h: side
+            x: (top + offset[0]) * scale,
+            y: (left + offset[1]) * scale,
+            w: side * scale,
+            h: side * scale
         };
     }
 }

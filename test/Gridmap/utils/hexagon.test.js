@@ -1,4 +1,5 @@
-import {getCentersOfHexagonsForTile, sin} from '../../../src/Gridmap/utils/hexagon';
+import Hexagon from '../../../src/Gridmap/utils/Hexagon';
+import {sin} from '../../../src//Gridmap/utils/geometry';
 import {expect} from 'chai';
 
 describe('getCentersOfHexagonsForTile', () => {
@@ -6,9 +7,11 @@ describe('getCentersOfHexagonsForTile', () => {
     let actual;
     let tileSize;
     let tileNumber;
+    let hexagon;
 
     beforeEach(() => {
-        actual = getCentersOfHexagonsForTile(tileNumber, tileSize, R);
+        hexagon = new Hexagon(R);
+        actual = hexagon.getCentersForTile(tileNumber, tileSize, 1);
     });
 
     // eslint-disable-next-line

@@ -125,9 +125,13 @@ ymaps.modules.define('Gridmap', [
         }
         _getPointsForShape(shapeCenter, shapeVertices, offset) {
             const scale = this._getScale();
+            const globalShape = shapeVertices.map(([x, y]) => [
+                (x + offset[0]) * scale,
+                (y + offset[1]) * scale
+            ]);
             const globalBbox = this._shape.getBBox(shapeCenter, offset, scale);
             return this._tree.search(globalBbox)
-                .filter(({pixelCoords}) => classifyPoint(shapeVertices, pixelCoords) <= 0);
+                .filter(({pixelCoords}) => classifyPoint(globalShape, pixelCoords) <= 0);
         }
 
         _getTileOffset(tileNumber, tileSize) {
@@ -143,18 +147,20 @@ ymaps.modules.define('Gridmap', [
             const shapes = this._shape.getCentersForTile(tileNumber, this._tileSize, scale);
             const offset = this._getTileOffset(tileNumber, this._tileSize);
             shapes.forEach(([x, y]) => {
-                const globalShape = this._shape.getPixelVertices([x, y], offset, scale, scale);
-                const points = this._getPointsForShape([x, y], globalShape, offset);
+                const shape = this._shape.getPixelVerticesForTile([x, y], scale);
+                const points = this._getPointsForShape([x, y], shape, offset);
                 if (points.length > 0) {
-                    const hexagon = this._shape.getPixelVertices([x, y], [0, 0], scale);
-                    const objectGeometry = hexagon.map(([hX, hY]) => this._projection.fromGlobalPixels(
-                        [hX + offset[0], hY +
-                        offset[1]], this._options.map.getZoom()));
+                    const objectGeometry = shape.map(([hX, hY]) => this._projection.fromGlobalPixels(
+                        [
+                            hX + offset[0],
+                            hY + offset[1]
+                        ],
+                        this._options.map.getZoom()));
                     result.push({
                         type: 'Feature',
                         properties: {
                             balloonContentBody: `Тут ${points.length} точек!`,
-                            balloonContentHeader: JSON.stringify(hexagon),
+                            balloonContentHeader: JSON.stringify(shape),
                             balloonContentFooter: 'Нижняя часть балуна.',
                             objectGeometry: objectGeometry,
                             // Можно задавать свойство balloonContent вместо Body/Header/Footer
@@ -167,7 +173,7 @@ ymaps.modules.define('Gridmap', [
                                 RenderedGeometry: {
                                     type: 'Polygon',
                                     coordinates: [
-                                        hexagon
+                                        shape
                                     ]
                                 }
                             }
@@ -187,11 +193,11 @@ ymaps.modules.define('Gridmap', [
             this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
 
             shapesCenters.forEach(([x, y]) => {
-                const globalShape = this._shape.getPixelVertices([x, y], offset, scale, scale);
-                const points = this._getPointsForShape([x, y], globalShape, offset);
+                const shape = this._shape.getPixelVerticesForTile([x, y], scale);
+                const points = this._getPointsForShape([x, y], shape, offset);
 
                 this._context.beginPath();
-                const shape = this._shape.getPixelVertices([x, y], [0, 0], scale);
+
                 shape.forEach(([x, y], idx) => {
                     if (idx === 0) {
                         this._context.moveTo(x * dpr, y * dpr);

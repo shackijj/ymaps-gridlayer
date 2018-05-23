@@ -9,24 +9,16 @@ import defaultOnClick from './utils/defaultOnClick';
 import defaultBalloonClose from './utils/defaultBalloonClose';
 
 /**
- * @typedef {HexagonGridOptions}
- * @property {number} bigRadius
- * @property {string} type
+ * Gridmap-layer module.
+ *
+ * @module Gridmap-layer
+ * @requires Layer
+ * @requires util.hd
+ * @requires util.defineClass
+ * @requires util.extend
+ * @requires HotspotObjectSourceBrowser
+ * @requires option.Manager
  */
-
-/**
- * @typedef {SquareGridOptions}
- * @property {number} sideLength
- * @property {string} type
- */
-
-/**
- * @typedef {GridmapOptions}
- * @property {IMap} map
- * @property {IGeoJSON} data
- * @property {SquareGridOptions|HexagonGridOptions} grid
- */
-
 ymaps.modules.define('Gridmap', [
     'Layer',
     'util.hd',
@@ -36,7 +28,21 @@ ymaps.modules.define('Gridmap', [
     'option.Manager'
 ], (provide, Layer, utilHd, defineClass, extend, HotspotObjectSourceBrowser, OptionManager) => {
     const dpr = utilHd.getPixelRatio();
-
+    /**
+     * @param {Object} data object of points
+     * @param {Object} [options] Options for customization.
+     * @param {Imap} options.map Required. Map
+     * @param {boolean} options.debug flag to show debug
+     * @param {string} options.gridType Required.Ttype of grid can be "hexagon" | "square"
+     * @param {string} options.gridHexagonRadius radius of hexagon
+     * @param {string} options.gridSquareSidelength side length of square
+     * @param {boolean} options.filterEmptyShapes flag to render empty shapes
+     * @param {string} options.emptyShapesColor fill color of shapes where points count equal 0
+     * @param {function} options.shapeColor function to get fill color of shape.
+     * Receives count point in shape and total point count
+     * @param {string} options.strokeColor color of shapes stroke
+     * @param {number} options.strokeWidth width of shapes stroke
+     */
     class Gridmap {
         constructor(data, options) {
             const defaultOptions = new OptionManager({

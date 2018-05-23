@@ -72,7 +72,7 @@ ymaps.modules.define('Gridmap', [
                 getHotspotsForTile: (tileNumber, zoom) => this._getHotspotsForTile(tileNumber, zoom)
             });
 
-            this.hotspotLayer = new ymaps.hotspot.Layer(this.objSource, {zIndex: 201, cursor: 'help'});
+            this.hotspotLayer = new ymaps.hotspot.Layer(this.objSource, this._options.hotspotOptions);
 
             this._options.map.layers.add(this.hotspotLayer);
             this._options.map.layers.add(this.layer);
@@ -128,6 +128,7 @@ ymaps.modules.define('Gridmap', [
             const scale = this._getScale();
             const shapes = this._shape.getCentersForTile(tileNumber, this._tileSize, scale);
             const offset = this._getTileOffset(tileNumber, this._tileSize);
+            const {getHotspotProps} = this._options;
             shapes.forEach(([x, y]) => {
                 const shape = this._shape.getPixelVerticesForTile([x, y], scale);
                 const points = this._getPointsForShape([x, y], shape, offset);
@@ -138,28 +139,24 @@ ymaps.modules.define('Gridmap', [
                             hY + offset[1]
                         ],
                         this._options.map.getZoom()));
-                    result.push({
-                        type: 'Feature',
-                        properties: {
-                            balloonContentBody: `Тут ${points.length} точек!`,
-                            balloonContentHeader: JSON.stringify(shape),
-                            balloonContentFooter: 'Нижняя часть балуна.',
-                            objectGeometry: objectGeometry,
-                            // Можно задавать свойство balloonContent вместо Body/Header/Footer
-                            // Обязательное поле
-                            HotspotMetaData: {
-                                // Идентификатор активной области.
-                                id: JSON.stringify(points),
-                                // Данные, на основе которых создается геометрия активной области.
-                                // Обязательное поле.
-                                RenderedGeometry: {
-                                    type: 'Polygon',
-                                    coordinates: [
-                                        shape
-                                    ]
-                                }
+                    const userProperties = typeof getHotspotProps === 'function' ? getHotspotProps(points) : {};
+                    const geometryProperties = {
+                        points: points,
+                        objectGeometry: objectGeometry,
+                        HotspotMetaData: {
+                            id: JSON.stringify(points),
+                            RenderedGeometry: {
+                                type: 'Polygon',
+                                coordinates: [
+                                    shape
+                                ]
                             }
                         }
+                    };
+                    const properties = Object.assign({}, userProperties, geometryProperties);
+                    result.push({
+                        type: 'Feature',
+                        properties
                     });
                 }
             });
@@ -187,7 +184,7 @@ ymaps.modules.define('Gridmap', [
                         this._context.lineTo(x * dpr, y * dpr);
                     }
                 });
-                this._context.fillStyle = this._options.getShapeColor(points.length, this._data.length);
+                this._context.fillStyle = this._options.getShapeColor(points);
                 this._context.fill();
                 this._context.strokeStyle = this._options.strokeColor || 'black';
                 this._context.lineWidth = this._options.strokeWidth || 1;

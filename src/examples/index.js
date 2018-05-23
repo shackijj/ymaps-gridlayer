@@ -11,14 +11,12 @@ ymaps.ready(() => {
 
     ymaps.modules.require(['Gridmap'], (Gridmap) => {
         // eslint-disable-next-line
-        const gridmap = new Gridmap({
-            map: map1,
-            data,
-            grid: {
-                type: 'hexagon',
-                bigRadius: 15
-            },
-            getShapeColor(pointsCount, totalCount) {
+        const gridmap = new Gridmap(data, {
+            //map: map1,
+            gridType: 'hexagon',
+            gridHexagonRadius: 15,
+            filterEmptyShapes: true,
+            shapeColor(pointsCount, totalCount) {
                 return `rgba(0,255,0,${pointsCount / totalCount * 100})`;
             }
         });
@@ -33,14 +31,11 @@ ymaps.ready(() => {
 
     ymaps.modules.require(['Gridmap'], (Gridmap) => {
         // eslint-disable-next-line
-        const gridmap = new Gridmap({
+        const gridmap = new Gridmap(data, {
             map: map2,
-            data,
-            grid: {
-                type: 'square',
-                sideLength: 15
-            },
-            getShapeColor(pointsCount, totalCount) {
+            gridType: 'square',
+            gridHexagonRadius: 15,
+            shapeColor(pointsCount, totalCount) {
                 return `rgba(0,255,0,${pointsCount / totalCount * 100})`;
             }
         });

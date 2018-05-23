@@ -14,7 +14,7 @@ const defaultOnMouseEnter = function (e) {
         strokeWidth: 3
     });
 
-    this._options.map.geoObjects.add(this.polygonHover);
+    this._options.get('map').geoObjects.add(this.polygonHover);
 };
 
 export default defaultOnMouseEnter;

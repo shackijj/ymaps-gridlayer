@@ -17,39 +17,24 @@ ymaps.ready(() => {
                 type: 'hexagon',
                 bigRadius: 15
             },
-            getShapeColor(pointsCount, totalCount) {
-                return `rgba(0,255,0,${pointsCount / totalCount * 100})`;
-            }
+            hotspotOptions: {
+                zIndex: 201,
+                cursor: 'pointer'
+            },
+            getShapeColor: (points) => `rgba(0,255,0,${points.length / data.features.length * 100})`,
+            getHotspotProps: (points) => ({
+                balloonContentBody: `
+                    <ul>
+                        ${points.map(({feature: {properties}}) => `<li>${properties.Attributes.Name}</li>`).join('')}
+                    </ul>
+                `,
+                balloonContentHeader: `${points.length} парковок`,
+                balloonContentFooter: 'Нижняя часть балуна.',
+                hintContent: `Тут ${points.length} парковок`
+            })
         });
 
-        let polygonActive = null;
         let polygonHover = null;
-        gridmap.events.add('click', (e) => {
-            const activeShape = e.originalEvent.activeObject;
-            map.geoObjects.remove(polygonActive);
-            polygonActive = new ymaps.Polygon([activeShape._properties.objectGeometry], {
-                hintContent: 'Polygon'
-            }, {
-                fillColor: '#00FF0088',
-                strokeWidth: 3
-            });
-            map.geoObjects.add(polygonActive);
-        });
-
-        gridmap.events.add('click', (e) => {
-            const activeShape = e.originalEvent.activeObject;
-            map.geoObjects.remove(polygonActive);
-            polygonActive = new ymaps.Polygon([activeShape._properties.objectGeometry], {
-                hintContent: 'Polygon'
-            }, {
-                fillColor: '#00FF0088',
-                strokeWidth: 3
-            });
-            map.geoObjects.add(polygonActive);
-        });
-        gridmap.events.add('balloonclose', () => {
-            map.geoObjects.remove(polygonActive);
-        });
 
         gridmap.events.add('mouseenter', (e) => {
             const activeShape = e.originalEvent.activeObject;
@@ -82,9 +67,25 @@ ymaps.ready(() => {
                 type: 'square',
                 sideLength: 15
             },
-            getShapeColor(pointsCount, totalCount) {
-                return `rgba(0,255,0,${pointsCount / totalCount * 100})`;
-            }
+            hotspotOptions: {
+                zIndex: 201,
+                cursor: 'help'
+            },
+            getShapeColor: (points) => `rgba(0,255,0,${points.length / data.features.length * 100})`
+        });
+
+        let polygonActive = null;
+        gridmap.events.add('click', (e) => {
+            const activeShape = e.originalEvent.activeObject;
+            map2.geoObjects.remove(polygonActive);
+
+            polygonActive = new ymaps.Polygon([activeShape._properties.objectGeometry], {
+                hintContent: 'Polygon'
+            }, {
+                fillColor: '#00FF0088',
+                strokeWidth: 3
+            });
+            map2.geoObjects.add(polygonActive);
         });
     });
 });

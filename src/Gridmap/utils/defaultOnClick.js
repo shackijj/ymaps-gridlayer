@@ -7,7 +7,7 @@
 const defaultOnClick = function (e) {
     const activeShape = e.originalEvent.activeObject;
 
-    this._options.map.geoObjects.remove(this.polygonActive);
+    this._options.get('map').geoObjects.remove(this.polygonActive);
 
     this.polygonActive = new ymaps.Polygon([activeShape._properties.objectGeometry], {
         hintContent: 'Polygon'
@@ -16,7 +16,7 @@ const defaultOnClick = function (e) {
         strokeWidth: 3
     });
 
-    this._options.map.geoObjects.add(this.polygonActive);
+    this._options.get('map').geoObjects.add(this.polygonActive);
 };
 
 export default defaultOnClick;

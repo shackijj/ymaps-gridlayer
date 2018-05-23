@@ -5,7 +5,7 @@
  * @this Gridmap
  */
 const defaultBalloonClose = function () {
-    this._options.map.geoObjects.remove(this.polygonActive);
+    this._options.get('map').geoObjects.remove(this.polygonActive);
 };
 
 export default defaultBalloonClose;

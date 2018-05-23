@@ -45,12 +45,34 @@ ymaps.modules.define('Gridmap', [
             const defaultOptions = new OptionManager({
                 map: undefined,
                 debug: false,
-                gridType: '',
+                gridType: undefined,
                 gridHexagonRadius: 15,
                 gridSquareSidelength: 15,
                 filterEmptyShapes: false,
                 emptyShapesColor: 'rgba(255,255,255, 0)',
-                shapeColor: (points) => `rgba(0,255,0,${points.length / data.features.length * 100})`,
+                shapeColor: (points) => {
+                    const ranges = [200, 80, 20, 10, 5];
+                    const colors = [
+                        'rgba(74,20,140, 0.8)',
+                        'rgba(106,27,154, 0.8)',
+                        'rgba(123,31,162, 0.8)',
+                        'rgba(157,101,171, 0.8)',
+                        'rgba(165,135,173, 0.8)'
+                    ];
+
+                    const pointsCount = points.length;
+
+                    let color = colors[ranges.length - 1];
+
+                    for (let i = 0; i < ranges.length; i++) {
+                        if (pointsCount <= ranges[i] && pointsCount > ranges[i + 1]) {
+                            color = colors[i];
+                            break;
+                        }
+                    }
+
+                    return color;
+                },
                 strokeColor: '#666',
                 strokeWidth: 1,
                 getHotspotProps: (points) => ({

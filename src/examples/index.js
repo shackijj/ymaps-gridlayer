@@ -13,7 +13,6 @@ ymaps.ready(() => {
             gridType: 'hexagon',
             gridHexagonRadius: 15,
             filterEmptyShapes: true,
-            shapeColor: (points) => `rgba(0,255,0,${points.length / data.features.length * 100})`,
             hotSpotZindex: 201,
             hotSpotCursor: 'pointer'
         });

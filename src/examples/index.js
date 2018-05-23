@@ -8,30 +8,14 @@ ymaps.ready(() => {
             zoom: 10,
             controls: ['zoomControl', 'typeSelector', 'fullscreenControl']
         });
-        const gridmap = new Gridmap({
+        const gridmap = new Gridmap(data, {
             map: map,
-            data,
-            strokeWidth: 3,
-            strokeColor: 'rgba(0,0,0,0.3)',
-            grid: {
-                type: 'hexagon',
-                bigRadius: 15
-            },
-            hotspotOptions: {
-                zIndex: 201,
-                cursor: 'pointer'
-            },
-            getShapeColor: (points) => `rgba(0,255,0,${points.length / data.features.length * 100})`,
-            getHotspotProps: (points) => ({
-                balloonContentBody: `
-                    <ul>
-                        ${points.map(({feature: {properties}}) => `<li>${properties.Attributes.Name}</li>`).join('')}
-                    </ul>
-                `,
-                balloonContentHeader: `${points.length} парковок`,
-                balloonContentFooter: 'Нижняя часть балуна.',
-                hintContent: `Тут ${points.length} парковок`
-            })
+            gridType: 'hexagon',
+            gridHexagonRadius: 15,
+            filterEmptyShapes: true,
+            shapeColor: (points) => `rgba(0,255,0,${points.length / data.features.length * 100})`,
+            hotSpotZindex: 201,
+            hotSpotCursor: 'pointer'
         });
 
         let polygonHover = null;
@@ -60,18 +44,13 @@ ymaps.ready(() => {
 
     ymaps.modules.require(['Gridmap'], (Gridmap) => {
         // eslint-disable-next-line
-        const gridmap = new Gridmap({
+        const gridmap = new Gridmap(data, {
             map: map2,
-            data,
-            grid: {
-                type: 'square',
-                sideLength: 15
-            },
-            hotspotOptions: {
-                zIndex: 201,
-                cursor: 'help'
-            },
-            getShapeColor: (points) => `rgba(0,255,0,${points.length / data.features.length * 100})`
+            gridType: 'square',
+            gridHexagonRadius: 15,
+            hotspotZindex: 201,
+            hotspotCursor: 'help',
+            shapeColor: (points) => `rgba(0,255,0,${points.length / data.features.length * 100})`
         });
 
         let polygonActive = null;

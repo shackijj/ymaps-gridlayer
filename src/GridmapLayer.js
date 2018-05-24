@@ -6,7 +6,7 @@ import './HotspotObjectSourceBrowser';
 import defaultOnMouseEnter from './utils/defaultOnMouseEnter';
 import defaultOnMouseLeave from './utils/defaultOnMouseLeave';
 import defaultOnClick from './utils/defaultOnClick';
-import defaultBalloonClose from './utils/defaultBalloonClose';
+import defaultOnBalloonClose from './utils/defaultOnBalloonClose';
 import defaultBalloonContent from './utils/defaultBalloonContent';
 
 /**
@@ -92,6 +92,11 @@ ymaps.modules.define('GridmapLayer', [
                     zIndex: 201,
                     cursor: 'pointer'
                 },
+                onMouseEnter: defaultOnMouseEnter,
+                onMouseLeave: defaultOnMouseLeave,
+                onClick: defaultOnClick,
+                onBalloonClose: defaultOnBalloonClose,
+                balloonContent: defaultBalloonContent,
                 interactivity: true
             });
 
@@ -146,6 +151,16 @@ ymaps.modules.define('GridmapLayer', [
 
             this.events = this.hotspotLayer.events;
 
+            const onMouseEnter = this._options.get('onMouseEnter');
+            const onMouseLeave = this._options.get('onMouseLeave');
+            const onClick = this._options.get('onClick');
+            const onBalloonClose = this._options.get('onBalloonClose');
+
+            this._options.set('onMouseEnter', onMouseEnter.bind(this));
+            this._options.set('onMouseLeave', onMouseLeave.bind(this));
+            this._options.set('onClick', onClick.bind(this));
+            this._options.set('onBalloonClose', onBalloonClose.bind(this));
+
             if (this._options.get('interactivity')) {
                 this._initInteractivity(this.hotspotLayer);
             }
@@ -154,15 +169,16 @@ ymaps.modules.define('GridmapLayer', [
         _initInteractivity(hotspotLayer) {
             this.polygonHover = null;
             this.polygonActive = null;
-            this.onMouseEnter = defaultOnMouseEnter.bind(this);
-            this.onMouseLeave = defaultOnMouseLeave.bind(this);
-            this.onClick = defaultOnClick.bind(this);
-            this.onBalloonClose = defaultBalloonClose.bind(this);
 
-            hotspotLayer.events.add('mouseenter', this.onMouseEnter);
-            hotspotLayer.events.add('mouseleave', this.onMouseLeave);
-            hotspotLayer.events.add('click', this.onClick);
-            hotspotLayer.events.add('balloonclose', this.onBalloonClose);
+            const onMouseEnter = this._options.get('onMouseEnter');
+            const onMouseLeave = this._options.get('onMouseLeave');
+            const onClick = this._options.get('onClick');
+            const onBalloonClose = this._options.get('onBalloonClose');
+
+            hotspotLayer.events.add('mouseenter', onMouseEnter);
+            hotspotLayer.events.add('mouseleave', onMouseLeave);
+            hotspotLayer.events.add('click', onClick);
+            hotspotLayer.events.add('balloonclose', onBalloonClose);
         }
 
         _buildTree() {
@@ -190,6 +206,7 @@ ymaps.modules.define('GridmapLayer', [
         _getScale() {
             return Math.pow(2, this._treeZoom - this._options.get('map').getZoom());
         }
+
         _getPointsForShape(shapeCenter, shapeVertices, offset) {
             const scale = this._getScale();
             const globalShape = shapeVertices.map(([x, y]) => [

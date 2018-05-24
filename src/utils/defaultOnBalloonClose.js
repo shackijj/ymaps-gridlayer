@@ -4,10 +4,10 @@
  * @param {Object} e Event object.
  * @this Gridmap
  */
-const defaultBalloonClose = function () {
+const defaultOnBalloonClose = function () {
     const map = this._options.get('map');
 
     map.geoObjects.remove(this.polygonActive);
 };
 
-export default defaultBalloonClose;
+export default defaultOnBalloonClose;

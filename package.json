@@ -1,19 +1,19 @@
 {
-  "name": "mapsapi-gridmap-layer",
+  "name": "ymaps-gridmap-layer",
   "version": "0.0.1",
   "description": "Yandex.Maps API module for data visualization.",
   "keywords": [
     "yandex",
     "maps",
-    "boilerplate"
+    "gridmap-layer"
   ],
-  "main": "umd/boilerplate.min.js",
+  "main": "src/Gridmap/Gridmap.js",
   "scripts": {
     "dev": "webpack-dev-server --mode development --config webpack.development.js --open",
     "build": "npm run build-module && npm run build-examples",
     "build-module": "webpack --mode production --config webpack.module.js",
     "build-examples": "webpack --mode production --config webpack.examples.js",
-    "deploy": "gh-pages -d examples",
+    "deploy": "gh-pages -d dist",
     "lint": "eslint src/**/*.js",
     "test": "mocha -r babel-core/register test/**/*.test.js --watch"
   },
@@ -24,8 +24,7 @@
   },
   "lint-staged": {
     "**/*.js": [
-      "npm run lint",
-      "git add"
+      "npm run lint"
     ]
   },
   "devDependencies": {
@@ -50,13 +49,13 @@
   },
   "author": "",
   "license": "MIT",
-  "homepage": "https://github.com/yandex-shri-fx-team/mapsapi-gridmap-layer#readme",
+  "homepage": "https://github.com/yandex-shri-fx-team/ymaps-gridmap-layer#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yandex-shri-fx-team/mapsapi-gridmap-layer.git"
+    "url": "git+https://github.com/yandex-shri-fx-team/ymaps-gridmap-layer.git"
   },
   "bugs": {
-    "url": "https://github.com/yandex-shri-fx-team/mapsapi-gridmap-layer/issues"
+    "url": "https://github.com/yandex-shri-fx-team/ymaps-gridmap-layer/issues"
   },
   "dependencies": {
     "robust-point-in-polygon": "^1.0.3",

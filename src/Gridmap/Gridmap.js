@@ -39,6 +39,7 @@ ymaps.modules.define('Gridmap', [
      * Receives count point in shape and total point count
      * @param {string} options.strokeColor color of shapes stroke
      * @param {number} options.strokeWidth width of shapes stroke
+     * @param {Object} options.hotspotLayerOptions
      */
     class Gridmap {
         constructor(data, options) {
@@ -76,18 +77,14 @@ ymaps.modules.define('Gridmap', [
                 strokeColor: '#666',
                 strokeWidth: 1,
                 getHotspotProps: (points) => ({
-                    balloonContentBody: `
-                    <ul>
-                        ${points.map(({feature: {properties}}) => `<li>${properties.Attributes.Name}</li>`).join('')}
-                    </ul>
-                `,
-                    balloonContentHeader: `${points.length} парковок`,
-                    balloonContentFooter: 'Нижняя часть балуна.',
-                    hintContent: `Тут ${points.length} парковок`
+                    balloonContentBody: `The number of points is ${points.length}`,
+                    balloonContentHeader: 'Object\'s data',
+                    balloonContentFooter: 'Powered by Gridmap',
+                    hintContent: `${points.length}`
                 })
             });
 
-            this._initOptions(options, defaultOptions);
+            this._options = new OptionManager(options, defaultOptions);
 
             if (!this._options.get('map')) throw new Error('option "map" is required');
 
@@ -111,11 +108,11 @@ ymaps.modules.define('Gridmap', [
                     break;
                 }
                 default: {
-                    throw new Error('Unknowk grid type');
+                    throw new Error('Unknown grid type');
                 }
             }
 
-            const tileUrlTemplate = (tileNumber, tileZoom) => this.getDataURL(tileNumber, tileZoom);
+            const tileUrlTemplate = (tileNumber, tileZoom) => this._getDataURL(tileNumber, tileZoom);
 
             this.layer = new ymaps.Layer(tileUrlTemplate, {
                 /**
@@ -128,26 +125,14 @@ ymaps.modules.define('Gridmap', [
                 getHotspotsForTile: (tileNumber, zoom) => this._getHotspotsForTile(tileNumber, zoom)
             });
 
-            this.hotspotLayer = new ymaps.hotspot.Layer(this.objSource, {
-                zIndex: this._options.get('hotSpotZindex'),
-                cursor: this._options.get('hotSpotCursor')
-            });
+            this.hotspotLayer = new ymaps.hotspot.Layer(
+                this.objSource,
+                this._options.get('hotspotLayerOptions'));
 
             this._options.get('map').layers.add(this.hotspotLayer);
             this._options.get('map').layers.add(this.layer);
 
             this.events = this.hotspotLayer.events;
-        }
-
-        /**
-         * Init Options.
-         *
-         * @param {Object} options Options.
-         * @param {Object} defaultOptions Default options.
-         * @private
-         */
-        _initOptions(options, defaultOptions) {
-            this._options = new OptionManager(options, defaultOptions);
         }
 
         _buildTree() {
@@ -279,7 +264,7 @@ ymaps.modules.define('Gridmap', [
             });
         }
 
-        getDataURL(tileNumer, zoom) {
+        _getDataURL(tileNumer, zoom) {
             this._drawTile(tileNumer, zoom);
             return this._canvas.toDataURL();
         }

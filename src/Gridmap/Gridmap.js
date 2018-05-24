@@ -3,6 +3,11 @@ import Square from './utils/Square';
 import RTree from 'rtree';
 import classifyPoint from 'robust-point-in-polygon';
 import './HotspotObjectSourceBrowser';
+import defaultOnMouseEnter from './utils/defaultOnMouseEnter';
+import defaultOnMouseLeave from './utils/defaultOnMouseLeave';
+import defaultOnClick from './utils/defaultOnClick';
+import defaultBalloonClose from './utils/defaultBalloonClose';
+import defaultBalloonContent from './utils/defaultBalloonContent';
 
 /**
  * Gridmap-layer module.
@@ -131,12 +136,27 @@ ymaps.modules.define('Gridmap', [
 
             this.hotspotLayer = new ymaps.hotspot.Layer(
                 this.objSource,
-                this._options.get('hotspotLayerOptions'));
-
+                this._options.get('hotspotLayerOptions')
+            );
+          
             this._options.get('map').layers.add(this.hotspotLayer);
             this._options.get('map').layers.add(this.layer);
 
             this.events = this.hotspotLayer.events;
+        }
+
+        _initInteractivity(hotspotLayer) {
+            this.polygonHover = null;
+            this.polygonActive = null;
+            this.onMouseEnter = defaultOnMouseEnter.bind(this);
+            this.onMouseLeave = defaultOnMouseLeave.bind(this);
+            this.onClick = defaultOnClick.bind(this);
+            this.onBalloonClose = defaultBalloonClose.bind(this);
+
+            hotspotLayer.events.add('mouseenter', this.onMouseEnter);
+            hotspotLayer.events.add('mouseleave', this.onMouseLeave);
+            hotspotLayer.events.add('click', this.onClick);
+            hotspotLayer.events.add('balloonclose', this.onBalloonClose);
         }
 
         _buildTree() {
@@ -198,9 +218,11 @@ ymaps.modules.define('Gridmap', [
                             hX + offset[0],
                             hY + offset[1]
                         ],
-                        this._options.get('map').getZoom()));
-                    const userProperties = typeof getHotspotProps === 'function' ? getHotspotProps(points) : {};
-
+                        this._options.get('map').getZoom())
+                    );
+                    const userProperties = typeof getHotspotProps === 'function' ? getHotspotProps(points) :
+                        defaultBalloonContent(points);
+                  
                     const geometryProperties = {
                         points: points,
                         objectGeometry: objectGeometry,

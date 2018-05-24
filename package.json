@@ -7,7 +7,7 @@
     "maps",
     "gridmap-layer"
   ],
-  "main": "src/Gridmap.js",
+  "main": "src/GridmapLayer.js",
   "scripts": {
     "dev": "webpack-dev-server --mode development --config webpack.examples.js --open",
     "build": "npm run build-module && npm run build-examples",
@@ -15,7 +15,7 @@
     "build-examples": "webpack --mode production --config webpack.examples.js",
     "deploy": "gh-pages -d dist",
     "lint": "eslint src/**/*.js",
-    "test": "mocha -r babel-core/register src/**/*.test.js"
+    "test": "mocha -r babel-core/register src/{*,**/*}.test.js"
   },
   "husky": {
     "hooks": {

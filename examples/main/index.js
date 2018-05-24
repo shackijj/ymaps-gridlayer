@@ -1,8 +1,8 @@
-import '../../src/Gridmap';
+import '../../src/GridmapLayer';
 import data from '../data/bikeparking.json';
 
 ymaps.ready(() => {
-    ymaps.modules.require(['Gridmap'], (Gridmap) => {
+    ymaps.modules.require(['GridmapLayer'], (GridmapLayer) => {
         const map = new ymaps.Map(
             'map1',
             {
@@ -13,7 +13,7 @@ ymaps.ready(() => {
             {
                 minZoom: 8
             });
-        const gridmap = new Gridmap(data, {
+        const gridmap = new GridmapLayer(data, {
             map: map,
             gridType: 'hexagon',
             gridHexagonRadius: 15,
@@ -51,9 +51,9 @@ ymaps.ready(() => {
             minZoom: 8
         });
 
-    ymaps.modules.require(['Gridmap'], (Gridmap) => {
+    ymaps.modules.require(['GridmapLayer'], (GridmapLayer) => {
         // eslint-disable-next-line
-        const gridmap = new Gridmap(
+        const gridmap = new GridmapLayer(
             data,
             {
                 map: map2,

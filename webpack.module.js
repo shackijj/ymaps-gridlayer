@@ -1,7 +1,7 @@
 module.exports = {
-    entry: './src/Gridmap.js',
+    entry: './src/GridmapLayer.js',
     output: {
-        filename: 'gridmap.min.js',
+        filename: 'gridmap-layer.min.js',
         path: __dirname + '/umd'
     },
     module: {

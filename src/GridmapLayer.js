@@ -10,9 +10,9 @@ import defaultBalloonClose from './utils/defaultBalloonClose';
 import defaultBalloonContent from './utils/defaultBalloonContent';
 
 /**
- * Gridmap-layer module.
+ * GridmapLayer module.
  *
- * @module Gridmap-layer
+ * @module GridmapLayer
  * @requires Layer
  * @requires util.hd
  * @requires util.defineClass
@@ -20,7 +20,7 @@ import defaultBalloonContent from './utils/defaultBalloonContent';
  * @requires HotspotObjectSourceBrowser
  * @requires option.Manager
  */
-ymaps.modules.define('Gridmap', [
+ymaps.modules.define('GridmapLayer', [
     'Layer',
     'util.hd',
     'util.defineClass',
@@ -46,7 +46,7 @@ ymaps.modules.define('Gridmap', [
      * @param {number} options.strokeWidth width of shapes stroke
      * @param {Object} options.hotspotLayerOptions
      */
-    class Gridmap {
+    class GridmapLayer {
         constructor(data, options) {
             const defaultOptions = new OptionManager({
                 map: undefined,
@@ -296,5 +296,5 @@ ymaps.modules.define('Gridmap', [
         }
     }
 
-    provide(Gridmap);
+    provide(GridmapLayer);
 });

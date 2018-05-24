@@ -7,15 +7,15 @@
     "maps",
     "gridmap-layer"
   ],
-  "main": "src/Gridmap/Gridmap.js",
+  "main": "src/Gridmap.js",
   "scripts": {
-    "dev": "webpack-dev-server --mode development --config webpack.development.js --open",
+    "dev": "webpack-dev-server --mode development --config webpack.examples.js --open",
     "build": "npm run build-module && npm run build-examples",
     "build-module": "webpack --mode production --config webpack.module.js",
     "build-examples": "webpack --mode production --config webpack.examples.js",
     "deploy": "gh-pages -d dist",
     "lint": "eslint src/**/*.js",
-    "test": "mocha -r babel-core/register test/**/*.test.js --watch"
+    "test": "mocha -r babel-core/register src/**/*.test.js"
   },
   "husky": {
     "hooks": {
@@ -34,6 +34,7 @@
     "babel-preset-env": "^1.6.1",
     "babel-register": "^6.26.0",
     "chai": "^4.1.2",
+    "css-loader": "^0.28.11",
     "eslint": "^4.19.1",
     "eslint-config-loris": "^9.1.0",
     "gh-pages": "^1.1.0",
@@ -43,6 +44,7 @@
     "json-loader": "^0.5.7",
     "lint-staged": "^7.0.4",
     "mocha": "^5.1.1",
+    "style-loader": "^0.21.0",
     "webpack": "^4.6.0",
     "webpack-cli": "^2.0.15",
     "webpack-dev-server": "^3.1.3"

@@ -1,5 +1,5 @@
-import './../Gridmap/Gridmap';
-import data from './data/bikeparking.json';
+import '../../src/Gridmap';
+import data from '../data/bikeparking.json';
 
 ymaps.ready(() => {
     ymaps.modules.require(['Gridmap'], (Gridmap) => {

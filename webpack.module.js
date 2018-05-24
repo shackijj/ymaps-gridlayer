@@ -1,6 +1,5 @@
 module.exports = {
-    mode: 'production',
-    entry: './src/Gridmap/Gridmap.js',
+    entry: './src/Gridmap.js',
     output: {
         filename: 'gridmap.min.js',
         path: __dirname + '/umd'
@@ -13,6 +12,17 @@ module.exports = {
                 use: {
                     loader: 'babel-loader'
                 }
+            },
+            {
+                test: /\.css$/,
+                use: [
+                    {
+                        loader: 'style-loader'
+                    },
+                    {
+                        loader: 'css-loader'
+                    }
+                ]
             }
         ]
     }

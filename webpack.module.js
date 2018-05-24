@@ -1,8 +1,7 @@
 module.exports = {
-    mode: 'production',
-    entry: './src/Boilerplate/Boilerplate.js',
+    entry: './src/GridmapLayer.js',
     output: {
-        filename: 'boilerplate.min.js',
+        filename: 'gridmap-layer.min.js',
         path: __dirname + '/umd'
     },
     module: {
@@ -13,6 +12,17 @@ module.exports = {
                 use: {
                     loader: 'babel-loader'
                 }
+            },
+            {
+                test: /\.css$/,
+                use: [
+                    {
+                        loader: 'style-loader'
+                    },
+                    {
+                        loader: 'css-loader'
+                    }
+                ]
             }
         ]
     }

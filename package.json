@@ -16,7 +16,8 @@
     "deploy": "gh-pages -d dist",
     "lint": "eslint src/**/*.js",
     "test": "nyc mocha -r babel-core/register src/{*,**/*}.test.js",
-    "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov"
+    "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
+    "docs": "jsdoc2md --template .jsdoc/README.md src/*.js > README.md"
   },
   "husky": {
     "hooks": {
@@ -45,6 +46,7 @@
     "html-loader": "^0.5.5",
     "html-webpack-plugin": "^3.2.0",
     "husky": "^1.0.0-rc.2",
+    "jsdoc-to-markdown": "^4.0.1",
     "json-loader": "^0.5.7",
     "lint-staged": "^7.0.4",
     "mocha": "^5.1.1",

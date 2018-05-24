@@ -45,6 +45,7 @@ ymaps.modules.define('GridmapLayer', [
      * @param {string} options.strokeColor color of shapes stroke
      * @param {number} options.strokeWidth width of shapes stroke
      * @param {Object} options.hotspotLayerOptions
+     * @alias module:GridmapLayer
      */
     class GridmapLayer {
         constructor(data, options) {
@@ -138,7 +139,7 @@ ymaps.modules.define('GridmapLayer', [
                 this.objSource,
                 this._options.get('hotspotLayerOptions')
             );
-          
+
             this._options.get('map').layers.add(this.hotspotLayer);
             this._options.get('map').layers.add(this.layer);
 
@@ -222,7 +223,7 @@ ymaps.modules.define('GridmapLayer', [
                     );
                     const userProperties = typeof getHotspotProps === 'function' ? getHotspotProps(points) :
                         defaultBalloonContent(points);
-                  
+
                     const geometryProperties = {
                         points: points,
                         objectGeometry: objectGeometry,

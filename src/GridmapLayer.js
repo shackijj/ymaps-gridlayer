@@ -53,8 +53,8 @@ ymaps.modules.define('GridmapLayer', [
                 map: undefined,
                 debug: false,
                 gridType: undefined,
-                gridHexagonRadius: 15,
-                gridSquareSidelength: 15,
+                gridHexagonRadius: 20,
+                gridSquareSidelength: 20,
                 filterEmptyShapes: false,
                 emptyShapesColor: 'rgba(255,255,255, 0)',
                 shapeColor: (points) => {

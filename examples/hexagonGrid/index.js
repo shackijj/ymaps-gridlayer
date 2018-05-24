@@ -16,7 +16,6 @@ ymaps.ready(() => {
         const gridmap = new GridmapLayer(data, {
             map,
             gridType: 'hexagon',
-            gridHexagonRadius: 15,
             filterEmptyShapes: true,
             hotSpotZindex: 201,
             hotSpotCursor: 'pointer'

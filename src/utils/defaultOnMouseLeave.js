@@ -5,7 +5,9 @@
  * @this Gridmap
  */
 const defaultOnMouseLeave = function () {
-    this._options.map.geoObjects.remove(this.polygonHover);
+    const map = this._options.get('map');
+
+    map.geoObjects.remove(this.polygonHover);
 };
 
 export default defaultOnMouseLeave;

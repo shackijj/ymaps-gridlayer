@@ -91,7 +91,8 @@ ymaps.modules.define('GridmapLayer', [
                 hotspotLayerOptions: {
                     zIndex: 201,
                     cursor: 'pointer'
-                }
+                },
+                interactivity: true
             });
 
             this._options = new OptionManager(options, defaultOptions);
@@ -144,6 +145,10 @@ ymaps.modules.define('GridmapLayer', [
             this._options.get('map').layers.add(this.layer);
 
             this.events = this.hotspotLayer.events;
+
+            if (this._options.get('interactivity')) {
+                this._initInteractivity(this.hotspotLayer);
+            }
         }
 
         _initInteractivity(hotspotLayer) {

@@ -6,6 +6,7 @@
  */
 const defaultOnMouseEnter = function (e) {
     const activeShape = e.originalEvent.activeObject;
+    const map = this._options.get('map');
 
     this.polygonHover = new ymaps.Polygon([activeShape._properties.objectGeometry], {
         hintContent: 'Polygon'
@@ -14,7 +15,7 @@ const defaultOnMouseEnter = function (e) {
         strokeWidth: 3
     });
 
-    this._options.map.geoObjects.add(this.polygonHover);
+    map.geoObjects.add(this.polygonHover);
 };
 
 export default defaultOnMouseEnter;

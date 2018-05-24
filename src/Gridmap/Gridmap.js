@@ -81,7 +81,11 @@ ymaps.modules.define('Gridmap', [
                     balloonContentHeader: 'Object\'s data',
                     balloonContentFooter: 'Powered by Gridmap',
                     hintContent: `${points.length}`
-                })
+                }),
+                hotspotLayerOptions: {
+                    zIndex: 201,
+                    cursor: 'pointer'
+                }
             });
 
             this._options = new OptionManager(options, defaultOptions);

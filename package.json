@@ -15,7 +15,8 @@
     "build-examples": "webpack --mode production --config webpack.examples.js",
     "deploy": "gh-pages -d dist",
     "lint": "eslint src/**/*.js",
-    "test": "mocha -r babel-core/register src/{*,**/*}.test.js"
+    "test": "nyc mocha -r babel-core/register src/{*,**/*}.test.js",
+    "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov"
   },
   "husky": {
     "hooks": {
@@ -44,6 +45,7 @@
     "json-loader": "^0.5.7",
     "lint-staged": "^7.0.4",
     "mocha": "^5.1.1",
+    "nyc": "^11.8.0",
     "style-loader": "^0.21.0",
     "webpack": "^4.6.0",
     "webpack-cli": "^2.0.15",

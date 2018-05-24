@@ -109,9 +109,7 @@ const map = new ymaps.Map('idOfMap', {
 
 const gridmap = new GridmapLayer(data, {
     map,
-    gridType: 'hexagon',
-    gridHexagonRadius: 15,
-    filterEmptyShapes: true
+    gridType: 'hexagon'
 });
 ```
 

@@ -1,5 +1,5 @@
-import Hexagon from '../../../src/Gridmap/utils/Hexagon';
-import {sin} from '../../../src//Gridmap/utils/geometry';
+import Hexagon from './Hexagon';
+import {sin} from './geometry';
 import {expect} from 'chai';
 
 describe('getCentersOfHexagonsForTile', () => {

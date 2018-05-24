@@ -3,35 +3,23 @@ import data from './data/bikeparking.json';
 
 ymaps.ready(() => {
     ymaps.modules.require(['Gridmap'], (Gridmap) => {
-        const map = new ymaps.Map('map1', {
-            center: [55.76, 37.64],
-            zoom: 10,
-            controls: ['zoomControl', 'typeSelector', 'fullscreenControl']
-        });
-        const gridmap = new Gridmap({
+        const map = new ymaps.Map(
+            'map1',
+            {
+                center: [55.76, 37.64],
+                zoom: 10,
+                controls: ['zoomControl', 'typeSelector', 'fullscreenControl']
+            },
+            {
+                minZoom: 8
+            });
+        const gridmap = new Gridmap(data, {
             map: map,
-            data,
-            strokeWidth: 3,
-            strokeColor: 'rgba(0,0,0,0.3)',
-            grid: {
-                type: 'hexagon',
-                bigRadius: 15
-            },
-            hotspotOptions: {
-                zIndex: 201,
-                cursor: 'pointer'
-            },
-            getShapeColor: (points) => `rgba(0,255,0,${points.length / data.features.length * 100})`,
-            getHotspotProps: (points) => ({
-                balloonContentBody: `
-                    <ul>
-                        ${points.map(({feature: {properties}}) => `<li>${properties.Attributes.Name}</li>`).join('')}
-                    </ul>
-                `,
-                balloonContentHeader: `${points.length} парковок`,
-                balloonContentFooter: 'Нижняя часть балуна.',
-                hintContent: `Тут ${points.length} парковок`
-            })
+            gridType: 'hexagon',
+            gridHexagonRadius: 15,
+            filterEmptyShapes: true,
+            hotSpotZindex: 201,
+            hotSpotCursor: 'pointer'
         });
 
         let polygonHover = null;
@@ -52,27 +40,29 @@ ymaps.ready(() => {
     });
 
     // eslint-disable-next-line no-unused-vars
-    const map2 = new ymaps.Map('map2', {
-        center: [55.76, 37.64],
-        zoom: 10,
-        controls: ['zoomControl', 'typeSelector', 'fullscreenControl']
-    });
+    const map2 = new ymaps.Map(
+        'map2',
+        {
+            center: [55.76, 37.64],
+            zoom: 10,
+            controls: ['zoomControl', 'typeSelector', 'fullscreenControl']
+        },
+        {
+            minZoom: 8
+        });
 
     ymaps.modules.require(['Gridmap'], (Gridmap) => {
         // eslint-disable-next-line
-        const gridmap = new Gridmap({
-            map: map2,
+        const gridmap = new Gridmap(
             data,
-            grid: {
-                type: 'square',
-                sideLength: 15
-            },
-            hotspotOptions: {
-                zIndex: 201,
-                cursor: 'help'
-            },
-            getShapeColor: (points) => `rgba(0,255,0,${points.length / data.features.length * 100})`
-        });
+            {
+                map: map2,
+                gridType: 'square',
+                gridHexagonRadius: 15,
+                hotspotZindex: 201,
+                hotspotCursor: 'help',
+                shapeColor: (points) => `rgba(0,255,0,${points.length / data.features.length * 100})`
+            });
 
         let polygonActive = null;
         gridmap.events.add('click', (e) => {
@@ -83,9 +73,12 @@ ymaps.ready(() => {
                 hintContent: 'Polygon'
             }, {
                 fillColor: '#00FF0088',
-                strokeWidth: 3
+                strokeWidth: 2
             });
             map2.geoObjects.add(polygonActive);
+        });
+        gridmap.events.add('balloonclose', () => {
+            map2.geoObjects.remove(polygonActive);
         });
     });
 });

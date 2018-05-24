@@ -10,39 +10,96 @@ import defaultBalloonClose from './utils/defaultBalloonClose';
 import defaultBalloonContent from './utils/defaultBalloonContent';
 
 /**
- * @typedef {HexagonGridOptions}
- * @property {number} bigRadius
- * @property {string} type
+ * Gridmap-layer module.
+ *
+ * @module Gridmap-layer
+ * @requires Layer
+ * @requires util.hd
+ * @requires util.defineClass
+ * @requires util.extend
+ * @requires HotspotObjectSourceBrowser
+ * @requires option.Manager
  */
-
-/**
- * @typedef {SquareGridOptions}
- * @property {number} sideLength
- * @property {string} type
- */
-
-/**
- * @typedef {GridmapOptions}
- * @property {IMap} map
- * @property {IGeoJSON} data
- * @property {SquareGridOptions|HexagonGridOptions} grid
- */
-
 ymaps.modules.define('Gridmap', [
     'Layer',
     'util.hd',
     'util.defineClass',
     'util.extend',
-    'HotspotObjectSourceBrowser'
-], (provide, Layer, utilHd, defineClass, extend, HotspotObjectSourceBrowser) => {
+    'HotspotObjectSourceBrowser',
+    'option.Manager'
+], (provide, Layer, utilHd, defineClass, extend, HotspotObjectSourceBrowser, OptionManager) => {
     const dpr = utilHd.getPixelRatio();
 
+    /**
+     * @param {Object} data object of points
+     * @param {Object} [options] Options for customization.
+     * @param {Imap} options.map Required. Map
+     * @param {boolean} options.debug flag to show debug
+     * @param {string} options.gridType Required.Ttype of grid can be "hexagon" | "square"
+     * @param {string} options.gridHexagonRadius radius of hexagon
+     * @param {string} options.gridSquareSidelength side length of square
+     * @param {boolean} options.filterEmptyShapes flag to render empty shapes
+     * @param {string} options.emptyShapesColor fill color of shapes where points count equal 0
+     * @param {function} options.shapeColor function to get fill color of shape.
+     * Receives count point in shape and total point count
+     * @param {string} options.strokeColor color of shapes stroke
+     * @param {number} options.strokeWidth width of shapes stroke
+     * @param {Object} options.hotspotLayerOptions
+     */
     class Gridmap {
-        constructor(options) {
+        constructor(data, options) {
+            const defaultOptions = new OptionManager({
+                map: undefined,
+                debug: false,
+                gridType: undefined,
+                gridHexagonRadius: 15,
+                gridSquareSidelength: 15,
+                filterEmptyShapes: false,
+                emptyShapesColor: 'rgba(255,255,255, 0)',
+                shapeColor: (points) => {
+                    const ranges = [200, 80, 20, 10, 5];
+                    const colors = [
+                        'rgba(74,20,140, 0.8)',
+                        'rgba(106,27,154, 0.8)',
+                        'rgba(123,31,162, 0.8)',
+                        'rgba(157,101,171, 0.8)',
+                        'rgba(165,135,173, 0.8)'
+                    ];
+
+                    const pointsCount = points.length;
+
+                    let color = colors[ranges.length - 1];
+
+                    for (let i = 0; i < ranges.length; i++) {
+                        if (pointsCount <= ranges[i] && pointsCount > ranges[i + 1]) {
+                            color = colors[i];
+                            break;
+                        }
+                    }
+
+                    return color;
+                },
+                strokeColor: '#666',
+                strokeWidth: 1,
+                getHotspotProps: (points) => ({
+                    balloonContentBody: `The number of points is ${points.length}`,
+                    balloonContentHeader: 'Object\'s data',
+                    balloonContentFooter: 'Powered by Gridmap',
+                    hintContent: `${points.length}`
+                }),
+                hotspotLayerOptions: {
+                    zIndex: 201,
+                    cursor: 'pointer'
+                }
+            });
+
+            this._options = new OptionManager(options, defaultOptions);
+
+            if (!this._options.get('map')) throw new Error('option "map" is required');
+
             const TILE_SIZE = 256;
-            this._options = options;
-            this._projection = this._options.map.options.get('projection');
-            this._data = options.data.features;
+            this._projection = this._options.get('map').options.get('projection');
+            this._data = data.features;
             this._canvas = document.createElement('canvas');
             this._canvas.width = TILE_SIZE * dpr;
             this._canvas.height = TILE_SIZE * dpr;
@@ -50,21 +107,21 @@ ymaps.modules.define('Gridmap', [
             this._context = this._canvas.getContext('2d');
             this._buildTree();
 
-            switch (options.grid.type) {
+            switch (this._options.get('gridType')) {
                 case 'hexagon': {
-                    this._shape = new Hexagon(this._options.grid.bigRadius);
+                    this._shape = new Hexagon(this._options.get('gridHexagonRadius'));
                     break;
                 }
                 case 'square': {
-                    this._shape = new Square(this._options.grid.sideLength);
+                    this._shape = new Square(this._options.get('gridSquareSidelength'));
                     break;
                 }
                 default: {
-                    throw new Error('Unknowk grid type');
+                    throw new Error('Unknown grid type');
                 }
             }
 
-            const tileUrlTemplate = (tileNumber, tileZoom) => this.getDataURL(tileNumber, tileZoom);
+            const tileUrlTemplate = (tileNumber, tileZoom) => this._getDataURL(tileNumber, tileZoom);
 
             this.layer = new ymaps.Layer(tileUrlTemplate, {
                 /**
@@ -77,12 +134,13 @@ ymaps.modules.define('Gridmap', [
                 getHotspotsForTile: (tileNumber, zoom) => this._getHotspotsForTile(tileNumber, zoom)
             });
 
-            this.hotspotLayer = new ymaps.hotspot.Layer(this.objSource, this._options.hotspotOptions);
-
-            this._initInteractivity(this.hotspotLayer);
-
-            this._options.map.layers.add(this.hotspotLayer);
-            this._options.map.layers.add(this.layer);
+            this.hotspotLayer = new ymaps.hotspot.Layer(
+                this.objSource,
+                this._options.get('hotspotLayerOptions')
+            );
+          
+            this._options.get('map').layers.add(this.hotspotLayer);
+            this._options.get('map').layers.add(this.layer);
 
             this.events = this.hotspotLayer.events;
         }
@@ -103,7 +161,7 @@ ymaps.modules.define('Gridmap', [
 
         _buildTree() {
             this._tree = new RTree();
-            this._treeZoom = this._options.map.getZoom();
+            this._treeZoom = this._options.get('map').getZoom();
             this._data.forEach((feature) => {
                 const [x, y] = this._projection.toGlobalPixels(
                     feature.geometry.coordinates, this._treeZoom);
@@ -124,7 +182,7 @@ ymaps.modules.define('Gridmap', [
         }
 
         _getScale() {
-            return Math.pow(2, this._treeZoom - this._options.map.getZoom());
+            return Math.pow(2, this._treeZoom - this._options.get('map').getZoom());
         }
         _getPointsForShape(shapeCenter, shapeVertices, offset) {
             const scale = this._getScale();
@@ -149,7 +207,8 @@ ymaps.modules.define('Gridmap', [
             const scale = this._getScale();
             const shapes = this._shape.getCentersForTile(tileNumber, this._tileSize, scale);
             const offset = this._getTileOffset(tileNumber, this._tileSize);
-            const {getHotspotProps} = this._options;
+            const getHotspotProps = this._options.get('getHotspotProps');
+
             shapes.forEach(([x, y]) => {
                 const shape = this._shape.getPixelVerticesForTile([x, y], scale);
                 const points = this._getPointsForShape([x, y], shape, offset);
@@ -159,9 +218,11 @@ ymaps.modules.define('Gridmap', [
                             hX + offset[0],
                             hY + offset[1]
                         ],
-                        this._options.map.getZoom()));
+                        this._options.get('map').getZoom())
+                    );
                     const userProperties = typeof getHotspotProps === 'function' ? getHotspotProps(points) :
                         defaultBalloonContent(points);
+                  
                     const geometryProperties = {
                         points: points,
                         objectGeometry: objectGeometry,
@@ -196,6 +257,9 @@ ymaps.modules.define('Gridmap', [
             shapesCenters.forEach(([x, y]) => {
                 const shape = this._shape.getPixelVerticesForTile([x, y], scale);
                 const points = this._getPointsForShape([x, y], shape, offset);
+                const pointsCount = points.length;
+
+                if (this._options.get('filterEmptyShapes') && pointsCount === 0) return;
 
                 this._context.beginPath();
 
@@ -206,12 +270,19 @@ ymaps.modules.define('Gridmap', [
                         this._context.lineTo(x * dpr, y * dpr);
                     }
                 });
-                this._context.fillStyle = this._options.getShapeColor(points);
+
+                if (pointsCount > 0) {
+                    this._context.fillStyle = this._options.get('shapeColor')(points);
+                } else {
+                    this._context.fillStyle = this._options.get('emptyShapesColor');
+                }
                 this._context.fill();
-                this._context.strokeStyle = this._options.strokeColor || 'black';
-                this._context.lineWidth = this._options.strokeWidth || 1;
+
+                this._context.strokeStyle = this._options.get('strokeColor');
+                this._context.strokeWidth = this._options.get('strokeWidth');
                 this._context.stroke();
-                if (this._options.debug) {
+
+                if (this._options.get('debug')) {
                     this._context.fillStyle = 'black';
                     this._context.fillText(points.length, x, y);
                 }
@@ -219,7 +290,7 @@ ymaps.modules.define('Gridmap', [
             });
         }
 
-        getDataURL(tileNumer, zoom) {
+        _getDataURL(tileNumer, zoom) {
             this._drawTile(tileNumer, zoom);
             return this._canvas.toDataURL();
         }

@@ -1,3 +1,11 @@
+/**
+ * HotspotObjectSourceBrowser.
+ *
+ * @module HotspotObjectSourceBrowser
+ * @requires util.defineClass
+ * @requires util.extend
+ * @requires hotspot.ObjectSource
+ */
 ymaps.modules.define('HotspotObjectSourceBrowser', [
     'util.defineClass',
     'util.extend',

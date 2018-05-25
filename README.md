@@ -50,12 +50,23 @@ Yandex.Maps API module for data visualization.
    });
    ```
 
+## Modules
+
+<dl>
+<dt><a href="#module_GridmapLayer">GridmapLayer</a></dt>
+<dd><p>GridmapLayer module.</p>
+</dd>
+<dt><a href="#module_HotspotObjectSourceBrowser">HotspotObjectSourceBrowser</a></dt>
+<dd><p>HotspotObjectSourceBrowser.</p>
+</dd>
+</dl>
+
 <a name="module_GridmapLayer"></a>
 
 ## GridmapLayer
 GridmapLayer module.
 
-**Requires**: <code>module:Layer</code>, <code>module:util.hd</code>, <code>module:util.defineClass</code>, <code>module:util.extend</code>, <code>module:HotspotObjectSourceBrowser</code>, <code>module:option.Manager</code>
+**Requires**: <code>module:Layer</code>, <code>module:util.hd</code>, <code>module:util.defineClass</code>, <code>module:util.extend</code>, [<code>HotspotObjectSourceBrowser</code>](#module_HotspotObjectSourceBrowser), <code>module:option.Manager</code>  
 
 * [GridmapLayer](#module_GridmapLayer)
     * [GridmapLayer](#exp_module_GridmapLayer--GridmapLayer) ⏏
@@ -65,26 +76,35 @@ GridmapLayer module.
 <a name="exp_module_GridmapLayer--GridmapLayer"></a>
 
 ### GridmapLayer ⏏
-**Kind**: Exported class
+**Kind**: Exported class  
 <a name="new_module_GridmapLayer--GridmapLayer_new"></a>
 
 #### new GridmapLayer(data, [options])
 
-| Param | Type | Description |
-| --- | --- | --- |
-| data | <code>Object</code> | object of points |
-| [options] | <code>Object</code> | Options for customization. |
-| options.map | <code>Imap</code> | Required. Map |
-| options.debug | <code>boolean</code> | flag to show debug |
-| options.gridType | <code>string</code> | Required.Ttype of grid can be "hexagon" | "square" |
-| options.gridHexagonRadius | <code>string</code> | radius of hexagon |
-| options.gridSquareSidelength | <code>string</code> | side length of square |
-| options.filterEmptyShapes | <code>boolean</code> | flag to render empty shapes |
-| options.emptyShapesColor | <code>string</code> | fill color of shapes where points count equal 0 |
-| options.shapeColor | <code>function</code> | function to get fill color of shape. Receives count point in shape and total point count |
-| options.strokeColor | <code>string</code> | color of shapes stroke |
-| options.strokeWidth | <code>number</code> | width of shapes stroke |
-| options.hotspotLayerOptions | <code>Object</code> |  |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| data | <code>Object</code> |  | Object of points. |
+| [options] | <code>Object</code> |  | Options for customization. |
+| options.map | <code>Imap</code> |  | Required. Map. |
+| [options.debug] | <code>boolean</code> | <code>false</code> | Flag to show debug. |
+| options.gridType | <code>string</code> |  | Required. Type of grid can be "hexagon" | "square". |
+| [options.gridHexagonRadius] | <code>string</code> | <code>15</code> | Radius of hexagon. |
+| [options.gridSquareSidelength] | <code>string</code> | <code>15</code> | Side length of square. |
+| [options.filterEmptyShapes] | <code>boolean</code> | <code>false</code> | Flag to render empty shapes. |
+| [options.emptyShapesColor] | <code>string</code> | <code>&quot;rgba(255,255,255, 0)&quot;</code> | Fill color of shapes where points count equal 0. |
+| options.shapeColor | <code>function</code> |  | Function to get fill color of shape. Receives count point in shape and total point count. |
+| [options.strokeColor] | <code>string</code> | <code>&quot;#666&quot;</code> | Color of shapes stroke. |
+| [options.strokeWidth] | <code>number</code> | <code>1</code> | Width of shapes stroke. |
+| options.getHotspotProps | <code>functions</code> |  | Properties of hotspot layer. |
+| [options.hotspotLayerOptions] | <code>Object</code> |  | Options of hotspot layer. |
+| [options.hotspotLayerOptions.zIndex] | <code>number</code> | <code>201</code> | ZIndex of hotspot. |
+| [options.hotspotLayerOptions.cursor] | <code>Object</code> | <code>pointer</code> | Cursor of hotspot. |
+| options.onMouseEnter | <code>function</code> |  | Hadler of mouseEnter event. |
+| options.onMouseLeave | <code>function</code> |  | Hadler of mouseLeave event. |
+| options.onClick | <code>function</code> |  | Hadler of click event. |
+| options.onBalloonClose | <code>function</code> |  | Hadler of baloon close event. |
+| options.balloonContent | <code>function</code> |  | Render baloon html. Receive array of points. |
+| [options.interactivity] | <code>boolean</code> | <code>true</code> | Flag to enable interactivity. |
 
 <a name="module_GridmapLayer--GridmapLayer..tileTransparent"></a>
 
@@ -92,7 +112,13 @@ GridmapLayer module.
 This is necessary because otherwise tiles are rendered
 on top of the previously rendered tiles that create a weird effect.
 
-**Kind**: inner property of [<code>GridmapLayer</code>](#exp_module_GridmapLayer--GridmapLayer)
+**Kind**: inner property of [<code>GridmapLayer</code>](#exp_module_GridmapLayer--GridmapLayer)  
+<a name="module_HotspotObjectSourceBrowser"></a>
+
+## HotspotObjectSourceBrowser
+HotspotObjectSourceBrowser.
+
+**Requires**: <code>module:util.defineClass</code>, <code>module:util.extend</code>, <code>module:hotspot.ObjectSource</code>  
 
 ## Examples
 
@@ -109,7 +135,9 @@ const map = new ymaps.Map('idOfMap', {
 
 const gridmap = new GridmapLayer(data, {
     map,
-    gridType: 'hexagon'
+    gridType: 'hexagon',
+    gridHexagonRadius: 15,
+    filterEmptyShapes: true
 });
 ```
 

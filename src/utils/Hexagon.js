@@ -1,9 +1,22 @@
 import {sin, cos} from './geometry';
-
+/**
+ * Hexagon.
+ * Calculate hexagon grid.
+ */
 export default class Hexagon {
+    /**
+     * @param {number} R Radius of hexagon.
+     */
     constructor(R) {
         this.R = R;
     }
+
+    /**
+     * Get center for tile.
+     * @param {number} tileNumber Number of tile.
+     * @param {number} tileSize Size of tile.
+     * @param {number} scale Scale of map.
+     */
     getCentersForTile(tileNumber, tileSize, scale) {
         const R = this.R / scale;
         const r = sin(60) * R;
@@ -42,6 +55,12 @@ export default class Hexagon {
         }
         return result;
     }
+
+    /**
+     * Get pixel vertices for tile.
+     * @param {Array} [param0] Array of coordinates.
+     * @param {number} scale Scale of map.
+     */
     getPixelVerticesForTile([x, y], scale) {
         const R = this.R / scale;
         const hexagon = [
@@ -60,6 +79,12 @@ export default class Hexagon {
         ]);
     }
 
+    /**
+     * Get BBox
+     * @param {Array} param0 Array of coordinates.
+     * @param {number} offset Offset.
+     * @param {number} scale Scale of map.
+     */
     getBBox([x, y], offset, scale) {
         const R = this.R / scale;
         const r = sin(60) * R;

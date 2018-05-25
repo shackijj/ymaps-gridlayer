@@ -70,6 +70,8 @@ ymaps.modules.define('GridmapLayer', [
 
                     const pointsCount = points.length;
 
+                    if (pointsCount < ranges[0]) return colors[0];
+
                     let color = colors[ranges.length - 1];
 
                     for (let i = 0; i < ranges.length; i++) {

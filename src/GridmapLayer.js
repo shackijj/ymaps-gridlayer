@@ -67,21 +67,24 @@ ymaps.modules.define('GridmapLayer', [
                 filterEmptyShapes: false,
                 emptyShapesColor: 'rgba(255,255,255, 0)',
                 shapeColor: (points) => {
-                    const ranges = [200, 80, 20, 10, 5];
+                    const ranges = [0, 5, 10, 20, 80, 150];
                     const colors = [
-                        'rgba(74,20,140, 0.8)',
-                        'rgba(106,27,154, 0.8)',
-                        'rgba(123,31,162, 0.8)',
-                        'rgba(157,101,171, 0.8)',
-                        'rgba(165,135,173, 0.8)'
+                        'rgba(255,224,130, 0.8)',
+                        'rgba(255,213,79, 0.8)',
+                        'rgba(255,193,7, 0.8)',
+                        'rgba(255,160,0, 0.8)',
+                        'rgba(255,111,0, 0.8)',
+                        'rgba(216,61,21, 0.8)'
                     ];
 
                     const pointsCount = points.length;
 
+                    if (pointsCount < ranges[0]) return colors[0];
+
                     let color = colors[ranges.length - 1];
 
                     for (let i = 0; i < ranges.length; i++) {
-                        if (pointsCount <= ranges[i] && pointsCount > ranges[i + 1]) {
+                        if (pointsCount >= ranges[i] && pointsCount < ranges[i + 1]) {
                             color = colors[i];
                             break;
                         }

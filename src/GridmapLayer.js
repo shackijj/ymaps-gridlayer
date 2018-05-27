@@ -31,28 +31,60 @@ ymaps.modules.define('GridmapLayer', [
     const dpr = utilHd.getPixelRatio();
 
     /**
+     * @typedef {Object} IFeatureGeometry
+     * @property {string} type
+     * @property {Array<number>} coordinates
+     */
+
+    /**
+     * @typedef {Object} IFeature
+     * @property {string} type
+     * @property {IFeatureGeometry} geometry
+     * @property {Object} properties
+     */
+
+    /**
+     * @typedef {HotspotObjectProps}
+     * @property {(string|undefined)} balloonContentBody
+     * @property {(string|undefined)} balloonContentHeader
+     * @property {(string|undefined)} balloonContentFooter
+     * @property {(string|undefined)} hintContent
+     */
+
+    /**
+     * @callback getHotspotProps
+     * @param {Array<IFeature>}
+     * @return {HotspotObjectProps}
+     */
+
+    /**
+     * @callback eventCallback
+     * @param {IEvent} event {@link https://tech.yandex.ru/maps/doc/jsapi/2.1/ref/reference/IEvent-docpage/}
+     */
+
+    /**
      * @param {Object} data Object of points.
      * @param {Object} [options] Options for customization.
-     * @param {Imap} options.map Required. Map.
+     * @param {IMap} options.map Required. Map. {@link https://tech.yandex.ru/maps/doc/jsapi/2.1/ref/reference/Map-docpage/}
      * @param {boolean} [options.debug=false] Flag to show debug.
      * @param {string} options.gridType Required. Type of grid can be "hexagon" | "square".
-     * @param {string} [options.gridHexagonRadius=15] Radius of hexagon.
-     * @param {string} [options.gridSquareSidelength=15] Side length of square.
+     * @param {string} [options.gridHexagonRadius=15] Radius of hexagon in pixels, relative to maps's first zoom.
+     * @param {string} [options.gridSquareSidelength=15] Side length of square in pixels, relative to maps's first zoom.
      * @param {boolean} [options.filterEmptyShapes=false] Flag to render empty shapes.
      * @param {string} [options.emptyShapesColor=rgba(255,255,255, 0)] Fill color of shapes where points count equal 0.
      * @param {function} options.shapeColor Function to get fill color of shape.
      * Receives count point in shape and total point count.
      * @param {string} [options.strokeColor=#666] Color of shapes stroke.
      * @param {number} [options.strokeWidth=1] Width of shapes stroke.
-     * @param {functions} options.getHotspotProps Properties of hotspot layer.
-     * @param {Object} [options.hotspotLayerOptions] Options of hotspot layer.
+     * @param {getHotspotProps} options.getHotspotProps Properties of hotspot layer.
+     * @param {Object} [options.hotspotLayerOptions] Options of hotspot layer. ${@link https://tech.yandex.ru/maps/doc/jsapi/2.1/ref/reference/hotspot.Layer-docpage/#param-options}
      * @param {number} [options.hotspotLayerOptions.zIndex=201] ZIndex of hotspot.
      * @param {Object} [options.hotspotLayerOptions.cursor=pointer] Cursor of hotspot.
-     * @param {function} options.onMouseEnter Hadler of mouseEnter event.
-     * @param {function} options.onMouseLeave Hadler of mouseLeave event.
-     * @param {function} options.onClick Hadler of click event.
-     * @param {function} options.onBalloonClose Hadler of baloon close event.
-     * @param {function} options.balloonContent Render baloon html. Receive array of points.
+     * @param {eventCallback} options.onMouseEnter Hadler of mouseEnter event.
+     * @param {eventCallback} options.onMouseLeave Hadler of mouseLeave event.
+     * @param {eventCallback} options.onClick Hadler of click event.
+     * @param {eventCallback} options.onBalloonClose Hadler of baloon close event.
+     * @param {getHotspotProps} options.balloonContent Render baloon html. Receive array of points.
      * @param {boolean} [options.interactivity=true] Flag to enable interactivity.
      * @alias module:GridmapLayer
      */

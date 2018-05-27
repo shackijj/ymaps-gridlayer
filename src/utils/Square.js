@@ -61,7 +61,8 @@ export default class Square {
             [top, left],
             [top, left + side],
             [top + side, left + side],
-            [top + side, left]
+            [top + side, left],
+            [top, left]
         ];
     }
 

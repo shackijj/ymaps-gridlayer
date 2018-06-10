@@ -72,6 +72,12 @@ GridmapLayer module.
     * [GridmapLayer](#exp_module_GridmapLayer--GridmapLayer) ⏏
         * [new GridmapLayer(data, [options])](#new_module_GridmapLayer--GridmapLayer_new)
         * [~tileTransparent](#module_GridmapLayer--GridmapLayer..tileTransparent)
+        * [~IFeatureGeometry](#module_GridmapLayer--GridmapLayer..IFeatureGeometry) : <code>Object</code>
+        * [~IFeature](#module_GridmapLayer--GridmapLayer..IFeature) : <code>Object</code>
+        * [~IFeatureCollection](#module_GridmapLayer--GridmapLayer..IFeatureCollection) : <code>Object</code>
+        * [~getHotspotProps](#module_GridmapLayer--GridmapLayer..getHotspotProps) ⇒ <code>HotspotObjectProps</code>
+        * [~getColor](#module_GridmapLayer--GridmapLayer..getColor) ⇒ <code>string</code>
+        * [~eventCallback](#module_GridmapLayer--GridmapLayer..eventCallback) : <code>function</code>
 
 <a name="exp_module_GridmapLayer--GridmapLayer"></a>
 
@@ -83,28 +89,28 @@ GridmapLayer module.
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
-| data | <code>Object</code> |  | Object of points. |
+| data | <code>IFeatureCollection</code> |  | Object which contains points for visulization. |
 | [options] | <code>Object</code> |  | Options for customization. |
-| options.map | <code>Imap</code> |  | Required. Map. |
+| options.map | <code>IMap</code> |  | Required. Map. [https://tech.yandex.ru/maps/doc/jsapi/2.1/ref/reference/Map-docpage/](https://tech.yandex.ru/maps/doc/jsapi/2.1/ref/reference/Map-docpage/) |
 | [options.debug] | <code>boolean</code> | <code>false</code> | Flag to show debug. |
 | options.gridType | <code>string</code> |  | Required. Type of grid can be "hexagon" | "square". |
-| [options.gridHexagonRadius] | <code>string</code> | <code>15</code> | Radius of hexagon. |
-| [options.gridSquareSidelength] | <code>string</code> | <code>15</code> | Side length of square. |
-| [options.filterEmptyShapes] | <code>boolean</code> | <code>false</code> | Flag to render empty shapes. |
-| [options.emptyShapesColor] | <code>string</code> | <code>&quot;rgba(255,255,255, 0)&quot;</code> | Fill color of shapes where points count equal 0. |
-| options.shapeColor | <code>function</code> |  | Function to get fill color of shape. Receives count point in shape and total point count. |
+| [options.gridHexagonRadius] | <code>string</code> | <code>15</code> | Radius of a hexagon in pixels relative to maps's zoom. |
+| [options.gridSquareSidelength] | <code>string</code> | <code>15</code> | Side length of a square in pixels relative to maps's zoom. |
+| [options.filterEmptyShapes] | <code>boolean</code> | <code>false</code> | Enables rendering of empty shapes. |
+| [options.emptyShapesColor] | <code>string</code> | <code>&quot;rgba(255,255,255, 0)&quot;</code> | Fill color of shapes where points count equals 0. |
+| options.shapeColor | <code>getColor</code> |  | function which calculates shapes fill color. |
 | [options.strokeColor] | <code>string</code> | <code>&quot;#666&quot;</code> | Color of shapes stroke. |
 | [options.strokeWidth] | <code>number</code> | <code>1</code> | Width of shapes stroke. |
-| options.getHotspotProps | <code>functions</code> |  | Properties of hotspot layer. |
-| [options.hotspotLayerOptions] | <code>Object</code> |  | Options of hotspot layer. |
-| [options.hotspotLayerOptions.zIndex] | <code>number</code> | <code>201</code> | ZIndex of hotspot. |
-| [options.hotspotLayerOptions.cursor] | <code>Object</code> | <code>pointer</code> | Cursor of hotspot. |
-| options.onMouseEnter | <code>function</code> |  | Hadler of mouseEnter event. |
-| options.onMouseLeave | <code>function</code> |  | Hadler of mouseLeave event. |
-| options.onClick | <code>function</code> |  | Hadler of click event. |
-| options.onBalloonClose | <code>function</code> |  | Hadler of baloon close event. |
-| options.balloonContent | <code>function</code> |  | Render baloon html. Receive array of points. |
-| [options.interactivity] | <code>boolean</code> | <code>true</code> | Flag to enable interactivity. |
+| options.getHotspotProps | <code>getHotspotProps</code> |  | Properties of hotspot layer. |
+| [options.hotspotLayerOptions] | <code>Object</code> |  | Options of hotspot layer. $[https://tech.yandex.ru/maps/doc/jsapi/2.1/ref/reference/hotspot.Layer-docpage/#param-options](https://tech.yandex.ru/maps/doc/jsapi/2.1/ref/reference/hotspot.Layer-docpage/#param-options) |
+| [options.hotspotLayerOptions.zIndex] | <code>number</code> | <code>201</code> | zIndex of a hotspot. |
+| [options.hotspotLayerOptions.cursor] | <code>Object</code> | <code>pointer</code> | Cursor of a hotspot. |
+| options.onMouseEnter | <code>eventCallback</code> |  |  |
+| options.onMouseLeave | <code>eventCallback</code> |  |  |
+| options.onClick | <code>eventCallback</code> |  |  |
+| options.onBalloonClose | <code>eventCallback</code> |  |  |
+| options.balloonContent | <code>getHotspotProps</code> |  | calculates balloon's properties |
+| [options.interactivity] | <code>boolean</code> | <code>true</code> | enables default interactivity |
 
 <a name="module_GridmapLayer--GridmapLayer..tileTransparent"></a>
 
@@ -113,6 +119,67 @@ This is necessary because otherwise tiles are rendered
 on top of the previously rendered tiles that create a weird effect.
 
 **Kind**: inner property of [<code>GridmapLayer</code>](#exp_module_GridmapLayer--GridmapLayer)  
+<a name="module_GridmapLayer--GridmapLayer..IFeatureGeometry"></a>
+
+#### GridmapLayer~IFeatureGeometry : <code>Object</code>
+**Kind**: inner typedef of [<code>GridmapLayer</code>](#exp_module_GridmapLayer--GridmapLayer)  
+**Properties**
+
+| Name | Type |
+| --- | --- |
+| type | <code>string</code> | 
+| coordinates | <code>Array.&lt;number&gt;</code> | 
+
+<a name="module_GridmapLayer--GridmapLayer..IFeature"></a>
+
+#### GridmapLayer~IFeature : <code>Object</code>
+**Kind**: inner typedef of [<code>GridmapLayer</code>](#exp_module_GridmapLayer--GridmapLayer)  
+**Properties**
+
+| Name | Type |
+| --- | --- |
+| type | <code>string</code> | 
+| geometry | <code>IFeatureGeometry</code> | 
+| properties | <code>Object</code> | 
+
+<a name="module_GridmapLayer--GridmapLayer..IFeatureCollection"></a>
+
+#### GridmapLayer~IFeatureCollection : <code>Object</code>
+**Kind**: inner typedef of [<code>GridmapLayer</code>](#exp_module_GridmapLayer--GridmapLayer)  
+**Properties**
+
+| Name | Type |
+| --- | --- |
+| type | <code>string</code> | 
+| features | <code>Array.&lt;IFeature&gt;</code> | 
+
+<a name="module_GridmapLayer--GridmapLayer..getHotspotProps"></a>
+
+#### GridmapLayer~getHotspotProps ⇒ <code>HotspotObjectProps</code>
+**Kind**: inner typedef of [<code>GridmapLayer</code>](#exp_module_GridmapLayer--GridmapLayer)  
+
+| Type |
+| --- |
+| <code>Array.&lt;IFeature&gt;</code> | 
+
+<a name="module_GridmapLayer--GridmapLayer..getColor"></a>
+
+#### GridmapLayer~getColor ⇒ <code>string</code>
+**Kind**: inner typedef of [<code>GridmapLayer</code>](#exp_module_GridmapLayer--GridmapLayer)  
+
+| Type |
+| --- |
+| <code>Array.&lt;IFeature&gt;</code> | 
+
+<a name="module_GridmapLayer--GridmapLayer..eventCallback"></a>
+
+#### GridmapLayer~eventCallback : <code>function</code>
+**Kind**: inner typedef of [<code>GridmapLayer</code>](#exp_module_GridmapLayer--GridmapLayer)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| event | <code>IEvent</code> | [https://tech.yandex.ru/maps/doc/jsapi/2.1/ref/reference/IEvent-docpage/](https://tech.yandex.ru/maps/doc/jsapi/2.1/ref/reference/IEvent-docpage/) |
+
 <a name="module_HotspotObjectSourceBrowser"></a>
 
 ## HotspotObjectSourceBrowser
